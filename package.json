@@ -1,0 +1,29 @@
+{
+  "name": "intervallo",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "res:build": "rescript",
+    "res:clean": "rescript clean",
+    "res:dev": "rescript watch",
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@rescript/react": "^0.14.0",
+    "@rescript/runtime": "^12.0.2",
+    "react": "^19.2.3",
+    "react-dom": "^19.2.3"
+  },
+  "devDependencies": {
+    "@nojaf/vite-plugin-rescript": "^0.5.0",
+    "@tailwindcss/vite": "^4.1.18",
+    "@vitejs/plugin-react": "^5.1.2",
+    "daisyui": "^5.5.14",
+    "rescript": "^12.0.2",
+    "tailwindcss": "^4.1.18",
+    "vite": "^8.0.0-beta.5"
+  }
+}
