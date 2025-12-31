@@ -6,9 +6,21 @@ import * as Stdlib_Array from "@rescript/runtime/lib/es6/Stdlib_Array.js";
 import * as JsxRuntime from "react/jsx-runtime";
 
 function Fretboard$Note(props) {
-  let __highlight = props.highlight;
-  let highlight = __highlight !== undefined ? __highlight : false;
-  let colors = highlight ? "bg-sky-800 text-white" : "bg-zinc-950 text-white";
+  let colors;
+  switch (props.highlight) {
+    case "PrimaryNote" :
+      colors = "bg-yellow-400 text-white";
+      break;
+    case "SecondaryNote" :
+      colors = "bg-sky-500 text-white";
+      break;
+    case "GrayedOutNote" :
+      colors = "bg-zinc-950 opacity-10 text-white";
+      break;
+    case "RegularNote" :
+      colors = "bg-zinc-950 text-white";
+      break;
+  }
   return JsxRuntime.jsx("div", {
     children: Music.noteElement(props.note),
     className: `rounded-full ` + colors + ` flex items-center justify-center h-[30px] w-[30px] text-sm`
@@ -20,11 +32,10 @@ let Note = {
 };
 
 function Fretboard$Fret(props) {
-  let note = props.note;
   return JsxRuntime.jsx("div", {
     children: JsxRuntime.jsx(Fretboard$Note, {
-      note: note,
-      highlight: note === "FSharp"
+      note: props.note,
+      highlight: props.highlight
     }),
     className: "border-r-4 border-neutral-400 flex-1 min-w-[40px] p-2 flex items-center justify-end"
   });
@@ -37,7 +48,8 @@ let Fret = {
 function Fretboard$OpenString(props) {
   return JsxRuntime.jsx("div", {
     children: JsxRuntime.jsx(Fretboard$Note, {
-      note: props.openNote
+      note: props.openNote,
+      highlight: props.highlight
     }),
     className: "shrink-0"
   });
@@ -48,6 +60,7 @@ let OpenString = {
 };
 
 function Fretboard$GuitarString(props) {
+  let highlighter = props.highlighter;
   let __maxFrets = props.maxFrets;
   let openNote = props.openNote;
   let maxFrets = __maxFrets !== undefined ? __maxFrets : 15;
@@ -55,14 +68,16 @@ function Fretboard$GuitarString(props) {
   return JsxRuntime.jsxs("div", {
     children: [
       JsxRuntime.jsx(Fretboard$OpenString, {
-        openNote: openNote
+        openNote: openNote,
+        highlight: highlighter(openNote)
       }),
       JsxRuntime.jsx("div", {
         children: Stdlib_Array.fromInitializer(maxFrets, i => {
           let fret = i + 1 | 0;
           let note = Ring.at(Music.chromaticRing, openNoteIdx + fret | 0);
           return JsxRuntime.jsx(Fretboard$Fret, {
-            note: note
+            note: note,
+            highlight: highlighter(note)
           }, String(i));
         }),
         className: "border border-zinc-950 flex flex-1"
@@ -132,10 +147,27 @@ let FretMarkers = {
 };
 
 function Fretboard(props) {
+  let __secondary = props.secondary;
+  let primary = props.primary;
+  let __grayedOut = props.grayedOut;
   let __className = props.className;
   let __maxFrets = props.maxFrets;
   let maxFrets = __maxFrets !== undefined ? __maxFrets : 15;
   let className = __className !== undefined ? __className : "";
+  let grayedOut = __grayedOut !== undefined ? __grayedOut : new Set();
+  let secondary = __secondary !== undefined ? __secondary : new Set();
+  let highlighter = note => {
+    if (primary !== undefined && note === primary) {
+      return "PrimaryNote";
+    }
+    if (secondary.has(note)) {
+      return "SecondaryNote";
+    } else if (grayedOut.has(note)) {
+      return "GrayedOutNote";
+    } else {
+      return "RegularNote";
+    }
+  };
   return JsxRuntime.jsxs("div", {
     children: [
       JsxRuntime.jsx(Fretboard$FretMarkers, {
@@ -143,7 +175,8 @@ function Fretboard(props) {
       }),
       props.openStrings.map(openNote => JsxRuntime.jsx(Fretboard$GuitarString, {
         openNote: openNote,
-        maxFrets: maxFrets
+        maxFrets: maxFrets,
+        highlighter: highlighter
       }, Music.displayNote(openNote)))
     ],
     className: `overflow-auto select-none relative isolate ` + className

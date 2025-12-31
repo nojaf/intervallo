@@ -39,6 +39,12 @@ function distanceBetween(ring, from, to) {
   }
 }
 
+function subtract(source, target) {
+  let sourceItems = new Set(source.items);
+  let targetItems = new Set(target.items);
+  return sourceItems.difference(targetItems);
+}
+
 export {
   make,
   length,
@@ -46,5 +52,6 @@ export {
   contains,
   indexOf,
   distanceBetween,
+  subtract,
 }
 /* No side effect */

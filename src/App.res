@@ -10,6 +10,7 @@ external jsonStringifyAny: 't => React.element = "stringify"
 let make = () => {
   let (rootNote, setRootNote) = React.useState(_ => C)
   let majorScale = Scale.make(majorScalePattern, rootNote)
+  let unusedNotes = chromaticRing->Ring.subtract(majorScale.notes)
 
   <div className="w-full h-full p-8">
     <h1 className="font-title text-2xl md:text-3xl lg:text-4xl font-bold">
@@ -37,7 +38,12 @@ let make = () => {
       ->React.array}
     </div>
     <ScaleCircle scale={majorScale} radius={300} />
-    <Fretboard openStrings=[E, B, G, D, A, E] className="mt-6 mx-auto" />
+    <Fretboard
+      openStrings=[E, B, G, D, A, E]
+      className="mt-6 mx-auto"
+      primary={majorScale.rootNote}
+      grayedOut={unusedNotes}
+    />
     <code className="mt-4 block"> {jsonStringifyAny(majorScale)} </code>
     <code className="mt-4 block"> {jsonStringifyAny(cMajorChord)} </code>
   </div>

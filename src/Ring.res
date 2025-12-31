@@ -34,3 +34,9 @@ let distanceBetween = (ring: t<'node>, from: 'node, to: 'node) => {
     len - fromIdx + toIdx
   }
 }
+
+let subtract = (source: t<'node>, target: t<'node>) => {
+  let sourceItems = source.items->Set.fromArray
+  let targetItems = target.items->Set.fromArray
+  sourceItems->Set.difference(targetItems)
+}

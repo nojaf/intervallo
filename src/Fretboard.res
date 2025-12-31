@@ -1,9 +1,17 @@
 open Music
 
+type noteHighlight = PrimaryNote | SecondaryNote | GrayedOutNote | RegularNote
+
 module Note = {
   @react.component
-  let make = (~note: note, ~highlight=false) => {
-    let colors = highlight ? "bg-sky-800 text-white" : "bg-zinc-950 text-white"
+  let make = (~note: note, ~highlight) => {
+    let colors = switch highlight {
+    | RegularNote => "bg-zinc-950 text-white"
+    | PrimaryNote => "bg-yellow-400 text-white"
+    | SecondaryNote => "bg-sky-500 text-white"
+    | GrayedOutNote => "bg-zinc-950 opacity-10 text-white"
+    }
+
     <div
       className={`rounded-full ${colors} flex items-center justify-center h-[30px] w-[30px] text-sm`}
     >
@@ -14,35 +22,40 @@ module Note = {
 
 module Fret = {
   @react.component
-  let make = (~note: note) => {
+  let make = (~note: note, ~highlight) => {
     <div
       className="border-r-4 border-neutral-400 flex-1 min-w-[40px] p-2 flex items-center justify-end"
     >
-      <Note note={note} highlight={note == FSharp} />
+      <Note note={note} highlight />
     </div>
   }
 }
 
 module OpenString = {
   @react.component
-  let make = (~openNote: note) => {
+  let make = (~openNote: note, ~highlight) => {
     <div className="shrink-0">
-      <Note note={openNote} />
+      <Note note={openNote} highlight />
     </div>
   }
 }
 
 module GuitarString = {
   @react.component
-  let make = (~openNote: note, ~maxFrets: int=15, ~addFretMarker: bool=false) => {
+  let make = (
+    ~openNote: note,
+    ~maxFrets: int=15,
+    ~addFretMarker: bool=false,
+    ~highlighter: note => noteHighlight,
+  ) => {
     let openNoteIdx = chromaticRing->Ring.indexOf(openNote)
     <div className="flex gap-4 items-center w-full">
-      <OpenString openNote={openNote} />
+      <OpenString openNote={openNote} highlight={highlighter(openNote)} />
       <div className="border border-zinc-950 flex flex-1">
         {Array.fromInitializer(~length=maxFrets, i => {
           let fret = i + 1
           let note = chromaticRing->Ring.at(openNoteIdx + fret)
-          <Fret key={String.make(i)} note />
+          <Fret key={String.make(i)} note highlight={highlighter(note)} />
         })->React.array}
       </div>
     </div>
@@ -88,12 +101,35 @@ module FretMarkers = {
 }
 
 @react.component
-let make = (~openStrings: array<note>, ~maxFrets: int=15, ~className="") => {
+let make = (
+  ~openStrings: array<note>,
+  ~maxFrets: int=15,
+  ~className="",
+  ~grayedOut=Set.make(),
+  ~primary=?,
+  ~secondary=Set.make(),
+) => {
+  let highlighter = note => {
+    switch primary {
+    | Some(p) if note == p => PrimaryNote
+    | _ =>
+      if secondary->Set.has(note) {
+        SecondaryNote
+      } else if grayedOut->Set.has(note) {
+        GrayedOutNote
+      } else {
+        RegularNote
+      }
+    }
+  }
+
   <div className={`overflow-auto select-none relative isolate ${className}`}>
     <FretMarkers maxFrets={maxFrets} />
     {openStrings
     ->Array.map(openNote => {
-      <GuitarString key={displayNote(openNote)} openNote={openNote} maxFrets={maxFrets} />
+      <GuitarString
+        key={displayNote(openNote)} openNote={openNote} maxFrets={maxFrets} highlighter
+      />
     })
     ->React.array}
   </div>
