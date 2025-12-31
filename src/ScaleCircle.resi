@@ -4,4 +4,6 @@ let make: (
   ~radius: int=?,
   ~padding: int=?,
   ~className: string=?,
+  ~onNoteClick: Music.note => unit,
+  ~activeNote: Music.note=?,
 ) => React.element

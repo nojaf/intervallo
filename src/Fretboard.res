@@ -8,7 +8,7 @@ module Note = {
     let colors = switch highlight {
     | RegularNote => "bg-zinc-950 text-white"
     | PrimaryNote => "bg-yellow-400 text-white"
-    | SecondaryNote => "bg-sky-500 text-white"
+    | SecondaryNote => "bg-orange-500 text-white"
     | GrayedOutNote => "bg-zinc-950 opacity-10 text-white"
     }
 

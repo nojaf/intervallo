@@ -12,7 +12,7 @@ function Fretboard$Note(props) {
       colors = "bg-yellow-400 text-white";
       break;
     case "SecondaryNote" :
-      colors = "bg-sky-500 text-white";
+      colors = "bg-orange-500 text-white";
       break;
     case "GrayedOutNote" :
       colors = "bg-zinc-950 opacity-10 text-white";

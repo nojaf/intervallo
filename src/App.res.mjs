@@ -5,43 +5,96 @@ import * as Music from "./Music.res.mjs";
 import * as React from "react";
 import * as Fretboard from "./Fretboard.res.mjs";
 import * as ScaleCircle from "./ScaleCircle.res.mjs";
+import * as ButtonToggle from "./ButtonToggle.res.mjs";
+import * as Primitive_object from "@rescript/runtime/lib/es6/Primitive_object.js";
 import * as JsxRuntime from "react/jsx-runtime";
-
-let cMajor = Music.Scale.make(Music.majorScalePattern, "D");
-
-let cMajorChord = Music.Scale.chordForNote(cMajor, "A");
 
 function App(props) {
   let match = React.useState(() => "C");
   let setRootNote = match[1];
   let rootNote = match[0];
-  let majorScale = Music.Scale.make(Music.majorScalePattern, rootNote);
+  let match$1 = React.useState(() => Music.majorScalePattern);
+  let setScalePattern = match$1[1];
+  let scalePattern = match$1[0];
+  let majorScale = Music.Scale.make(scalePattern, rootNote);
   let unusedNotes = Ring.subtract(Music.chromaticRing, majorScale.notes);
+  let match$2 = React.useState(() => {});
+  let setActiveNote = match$2[1];
+  let activeNote = match$2[0];
+  let tmp;
+  if (activeNote !== undefined) {
+    let chord = Music.Scale.chordForNote(majorScale, activeNote);
+    let grayedOut = Music.allNotes.difference(new Set([
+      chord.root,
+      chord.third,
+      chord.fifth
+    ]));
+    tmp = JsxRuntime.jsxs(JsxRuntime.Fragment, {
+      children: [
+        JsxRuntime.jsx("h2", {
+          children: Music.chordName(chord),
+          className: "text-3xl font-bold"
+        }),
+        JsxRuntime.jsx(Fretboard.make, {
+          openStrings: [
+            "E",
+            "B",
+            "G",
+            "D",
+            "A",
+            "E"
+          ],
+          className: "my-6 mx-auto",
+          grayedOut: grayedOut,
+          primary: activeNote,
+          secondary: new Set([
+            chord.third,
+            chord.fifth
+          ])
+        })
+      ]
+    });
+  } else {
+    tmp = null;
+  }
   return JsxRuntime.jsxs("div", {
     children: [
       JsxRuntime.jsx("h1", {
         children: "Intervallo",
         className: "font-title text-2xl md:text-3xl lg:text-4xl font-bold"
       }),
-      JsxRuntime.jsx("div", {
-        children: Music.chromaticRing.items.map((note, idx) => {
-          let className = [
-            note === rootNote ? "btn-neutral" : "btn-outline",
-            idx > 0 ? "border-l-[0]" : "",
-            idx === 0 ? "rounded-l-md" : "",
-            idx === (Music.chromaticRing.items.length - 1 | 0) ? "rounded-r-md" : ""
-          ].join(" ");
-          return JsxRuntime.jsx("button", {
-            children: Music.noteElement(note),
-            className: `btn rounded-none ` + className,
-            onClick: param => setRootNote(param => note)
-          }, note);
-        }),
-        className: "flex flex-row justify-center py-4"
+      JsxRuntime.jsx(ButtonToggle.make, {
+        items: Music.chromaticRing.items,
+        onClick: note => {
+          setRootNote(param => note);
+          setActiveNote(param => {});
+        },
+        activeItem: rootNote,
+        renderItem: Music.noteElement,
+        keyOf: note => note
       }),
-      JsxRuntime.jsx(ScaleCircle.make, {
-        scale: majorScale,
-        radius: 300
+      JsxRuntime.jsx(ButtonToggle.make, {
+        items: [
+          "Major",
+          "Minor"
+        ],
+        onClick: pattern => {
+          setScalePattern(param => {
+            if (pattern === "Major") {
+              return Music.majorScalePattern;
+            } else {
+              return Music.minorScalePattern;
+            }
+          });
+          setActiveNote(param => {});
+        },
+        activeItem: Primitive_object.equal(scalePattern, Music.majorScalePattern) ? "Major" : "Minor",
+        renderItem: prim => prim,
+        keyOf: id => id
+      }),
+      JsxRuntime.jsx("h2", {
+        children: "Scale",
+        className: "text-3xl font-bold"
       }),
       JsxRuntime.jsx(Fretboard.make, {
         openStrings: [
@@ -52,18 +105,27 @@ function App(props) {
           "A",
           "E"
         ],
-        className: "mt-6 mx-auto",
+        className: "my-6 mx-auto",
         grayedOut: unusedNotes,
         primary: majorScale.rootNote
       }),
-      JsxRuntime.jsx("code", {
-        children: JSON.stringify(majorScale),
-        className: "mt-4 block"
+      JsxRuntime.jsxs("div", {
+        children: [
+          JsxRuntime.jsx(ScaleCircle.make, {
+            scale: majorScale,
+            radius: 300,
+            onNoteClick: note => setActiveNote(param => note),
+            activeNote: activeNote
+          }),
+          activeNote !== undefined ? JsxRuntime.jsx("button", {
+              children: "reset",
+              className: "btn btn-outline",
+              onClick: param => setActiveNote(param => {})
+            }) : null
+        ],
+        className: "flex flex-col items-center justify-center gap-4"
       }),
-      JsxRuntime.jsx("code", {
-        children: JSON.stringify(cMajorChord),
-        className: "mt-4 block"
-      })
+      tmp
     ],
     className: "w-full h-full p-8"
   });
@@ -74,4 +136,4 @@ let make = App;
 export {
   make,
 }
-/* cMajor Not a pure module */
+/* Music Not a pure module */

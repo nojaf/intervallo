@@ -34,7 +34,14 @@ let strokeColorForSemitones = (semitones: int): string => {
 }
 
 @react.component
-let make = (~scale: Music.Scale.t, ~radius=300, ~padding=20, ~className="") => {
+let make = (
+  ~scale: Music.Scale.t,
+  ~radius=300,
+  ~padding=20,
+  ~className="",
+  ~onNoteClick: Music.note => unit,
+  ~activeNote: option<Music.note>=?,
+) => {
   let size = radius + padding * 2
   let center = Int.toFloat(size) / 2.
   let orbitRadius = Int.toFloat(radius) / 2.
@@ -77,7 +84,7 @@ let make = (~scale: Music.Scale.t, ~radius=300, ~padding=20, ~className="") => {
     />
   })
 
-  <div className={`relative mx-auto ${className}`} style={{width: px(size), height: px(size)}}>
+  <div className={`relative ${className}`} style={{width: px(size), height: px(size)}}>
     // SVG layer for arcs
     <svg
       className="absolute inset-0 pointer-events-none"
@@ -86,6 +93,19 @@ let make = (~scale: Music.Scale.t, ~radius=300, ~padding=20, ~className="") => {
     >
       {arcs->React.array}
     </svg>
+    // Chord
+    {switch activeNote {
+    | None => React.null
+    | Some(activeNote) => {
+        let chord = Music.Scale.chordForNote(scale, activeNote)
+        let chordName = Music.chordName(chord)
+        <div
+          className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-yellow-400 text-white p-4 rounded-full"
+        >
+          {React.string(chordName)}
+        </div>
+      }
+    }}
     // Notes layer
     {notes
     ->Array.mapWithIndex((note, idx) => {
@@ -94,13 +114,36 @@ let make = (~scale: Music.Scale.t, ~radius=300, ~padding=20, ~className="") => {
       let angleInRadians = (degrees - 90.) * Math.Constants.pi / 180.
       let x = orbitRadius * Math.cos(angleInRadians) + center
       let y = orbitRadius * Math.sin(angleInRadians) + center
-      <div
+      let onClick = _ => {
+        onNoteClick(note)
+      }
+      let isActive = activeNote == Some(note)
+      let isThirdOrFifth = {
+        switch activeNote {
+        | None => false
+        | Some(activeNote) => {
+            let rootIdx = Ring.indexOf(scale.notes, activeNote)
+            let third = Ring.at(scale.notes, rootIdx + 2)
+            let fifth = Ring.at(scale.notes, rootIdx + 4)
+            note == third || note == fifth
+          }
+        }
+      }
+      let btnStyle = if isActive {
+        "bg-yellow-400 text-white"
+      } else if isThirdOrFifth {
+        "bg-orange-500 text-white"
+      } else {
+        "bg-zinc-950 text-white hover:bg-zinc-700"
+      }
+      <button
         key={String.make(idx)}
-        className="absolute -translate-x-1/2 -translate-y-1/2 cursor-pointer"
+        className={`btn btn-circle btn-sm absolute -translate-x-1/2 -translate-y-1/2 ${btnStyle}`}
         style={{left: pxf(x), top: pxf(y)}}
+        onClick
       >
         {Music.noteElement(note)}
-      </div>
+      </button>
     })
     ->React.array}
   </div>

@@ -1,6 +1,7 @@
 type step = HalfStep | WholeStep
 
 let majorScalePattern = [WholeStep, WholeStep, HalfStep, WholeStep, WholeStep, WholeStep, HalfStep]
+let minorScalePattern = [WholeStep, HalfStep, WholeStep, WholeStep, HalfStep, WholeStep, WholeStep]
 
 type note = C | CSharp | D | DSharp | E | F | FSharp | G | GSharp | A | ASharp | B
 
@@ -32,7 +33,17 @@ type chord = {
   quality: chordQuality,
 }
 
+let chordName = chord => {
+  let root = displayNote(chord.root)
+  switch chord.quality {
+  | Major => root + "maj"
+  | Minor => root + "min"
+  | Diminished => root + "dim"
+  }
+}
+
 let chromaticRing = Ring.make([C, CSharp, D, DSharp, E, F, FSharp, G, GSharp, A, ASharp, B])
+let allNotes = chromaticRing.items->Set.fromArray
 
 /** Absolute semitones (distance) between two notes */
 let semitonesBetween = (from: note, to: note): int => {

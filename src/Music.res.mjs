@@ -14,6 +14,16 @@ let majorScalePattern = [
   "HalfStep"
 ];
 
+let minorScalePattern = [
+  "WholeStep",
+  "HalfStep",
+  "WholeStep",
+  "WholeStep",
+  "HalfStep",
+  "WholeStep",
+  "WholeStep"
+];
+
 function displayNote(note) {
   switch (note) {
     case "C" :
@@ -45,6 +55,19 @@ function displayNote(note) {
 
 let noteElement = displayNote;
 
+function chordName(chord) {
+  let root = displayNote(chord.root);
+  let match = chord.quality;
+  switch (match) {
+    case "Major" :
+      return root + "maj";
+    case "Minor" :
+      return root + "min";
+    case "Diminished" :
+      return root + "dim";
+  }
+}
+
 let chromaticRing = Ring.make([
   "C",
   "CSharp",
@@ -59,6 +82,8 @@ let chromaticRing = Ring.make([
   "ASharp",
   "B"
 ]);
+
+let allNotes = new Set(chromaticRing.items);
 
 function semitonesBetween(from, to) {
   return Ring.distanceBetween(chromaticRing, from, to);
@@ -122,9 +147,12 @@ let Scale = {
 
 export {
   majorScalePattern,
+  minorScalePattern,
   displayNote,
   noteElement,
+  chordName,
   chromaticRing,
+  allNotes,
   semitonesBetween,
   Scale,
 }
