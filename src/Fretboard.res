@@ -13,7 +13,7 @@ module Note = {
     }
 
     <div
-      className={`rounded-full ${colors} flex items-center justify-center h-[30px] w-[30px] text-sm`}
+      className={`z-[2] rounded-full ${colors} flex items-center justify-center h-[30px] w-[30px] text-sm`}
     >
       {noteElement(note)}
     </div>
@@ -24,7 +24,7 @@ module Fret = {
   @react.component
   let make = (~note: note, ~highlight) => {
     <div
-      className="border-r-4 border-neutral-400 flex-1 min-w-[40px] p-2 flex items-center justify-end"
+      className="bg-yellow-800 border-r-4 border-neutral-400 flex-1 min-w-[40px] p-2 flex items-center justify-end"
     >
       <Note note={note} highlight />
     </div>
@@ -89,7 +89,7 @@ module FretMarker = {
 module FretMarkers = {
   @react.component
   let make = (~maxFrets: int) => {
-    <div className="absolute inset-0 flex gap-4 z-[-1] pointer-events-none">
+    <div className="absolute z-[1] inset-0 flex gap-4 pointer-events-none">
       <div className="shrink-0 w-[30px]" /> // spacer for open string
       <div className="flex flex-1 h-full">
         {Array.fromInitializer(~length=maxFrets, i => {
@@ -123,7 +123,7 @@ let make = (
     }
   }
 
-  <div className={`overflow-auto select-none relative isolate ${className}`}>
+  <div className={`overflow-auto select-none relative ${className}`}>
     <FretMarkers maxFrets={maxFrets} />
     {openStrings
     ->Array.map(openNote => {

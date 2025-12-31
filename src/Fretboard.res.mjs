@@ -23,7 +23,7 @@ function Fretboard$Note(props) {
   }
   return JsxRuntime.jsx("div", {
     children: Music.noteElement(props.note),
-    className: `rounded-full ` + colors + ` flex items-center justify-center h-[30px] w-[30px] text-sm`
+    className: `z-[2] rounded-full ` + colors + ` flex items-center justify-center h-[30px] w-[30px] text-sm`
   });
 }
 
@@ -37,7 +37,7 @@ function Fretboard$Fret(props) {
       note: props.note,
       highlight: props.highlight
     }),
-    className: "border-r-4 border-neutral-400 flex-1 min-w-[40px] p-2 flex items-center justify-end"
+    className: "bg-yellow-800 border-r-4 border-neutral-400 flex-1 min-w-[40px] p-2 flex items-center justify-end"
   });
 }
 
@@ -138,7 +138,7 @@ function Fretboard$FretMarkers(props) {
         className: "flex flex-1 h-full"
       })
     ],
-    className: "absolute inset-0 flex gap-4 z-[-1] pointer-events-none"
+    className: "absolute z-[1] inset-0 flex gap-4 pointer-events-none"
   });
 }
 
@@ -179,7 +179,7 @@ function Fretboard(props) {
         highlighter: highlighter
       }, Music.displayNote(openNote)))
     ],
-    className: `overflow-auto select-none relative isolate ` + className
+    className: `overflow-auto select-none relative ` + className
   });
 }
 
