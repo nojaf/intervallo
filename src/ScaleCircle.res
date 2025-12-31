@@ -1,6 +1,3 @@
-let px = (v: int) => String.make(v) ++ "px"
-let pxf = (v: float) => String.make(v) ++ "px"
-
 let describeArc = (
   ~centerX: float,
   ~centerY: float,
@@ -80,7 +77,7 @@ let make = (~scale: Music.Scale.t, ~radius=300, ~padding=20, ~className="") => {
     />
   })
 
-  <div className={`relative border ${className}`} style={{width: px(size), height: px(size)}}>
+  <div className={`relative mx-auto ${className}`} style={{width: px(size), height: px(size)}}>
     // SVG layer for arcs
     <svg
       className="absolute inset-0 pointer-events-none"
@@ -102,7 +99,7 @@ let make = (~scale: Music.Scale.t, ~radius=300, ~padding=20, ~className="") => {
         className="absolute -translate-x-1/2 -translate-y-1/2 cursor-pointer"
         style={{left: pxf(x), top: pxf(y)}}
       >
-        {Music.displayNote(note)}
+        {Music.noteElement(note)}
       </div>
     })
     ->React.array}

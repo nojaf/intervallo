@@ -31,12 +31,13 @@ let make = () => {
           onClick={_ => setRootNote(_ => note)}
           className={`btn rounded-none ${className}`}
         >
-          {displayNote(note)}
+          {noteElement(note)}
         </button>
       })
       ->React.array}
     </div>
     <ScaleCircle scale={majorScale} radius={300} />
+    <Fretboard openStrings=[E, B, G, D, A, E] className="mt-6 mx-auto" />
     <code className="mt-4 block"> {jsonStringifyAny(majorScale)} </code>
     <code className="mt-4 block"> {jsonStringifyAny(cMajorChord)} </code>
   </div>

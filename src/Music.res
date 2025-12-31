@@ -4,8 +4,8 @@ let majorScalePattern = [WholeStep, WholeStep, HalfStep, WholeStep, WholeStep, W
 
 type note = C | CSharp | D | DSharp | E | F | FSharp | G | GSharp | A | ASharp | B
 
-let displayNote = (note: note): React.element => {
-  let note = switch note {
+let displayNote = (note: note): string => {
+  switch note {
   | C => "C"
   | CSharp => "C#"
   | D => "D"
@@ -19,8 +19,9 @@ let displayNote = (note: note): React.element => {
   | ASharp => "A#"
   | B => "B"
   }
-  React.string(note)
 }
+
+let noteElement = note => React.string(displayNote(note))
 
 type chordQuality = Major | Minor | Diminished
 

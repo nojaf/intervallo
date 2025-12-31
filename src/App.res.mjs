@@ -2,6 +2,7 @@
 
 import * as Music from "./Music.res.mjs";
 import * as React from "react";
+import * as Fretboard from "./Fretboard.res.mjs";
 import * as ScaleCircle from "./ScaleCircle.res.mjs";
 import * as JsxRuntime from "react/jsx-runtime";
 
@@ -29,7 +30,7 @@ function App(props) {
             idx === (Music.chromaticRing.items.length - 1 | 0) ? "rounded-r-md" : ""
           ].join(" ");
           return JsxRuntime.jsx("button", {
-            children: Music.displayNote(note),
+            children: Music.noteElement(note),
             className: `btn rounded-none ` + className,
             onClick: param => setRootNote(param => note)
           }, note);
@@ -39,6 +40,17 @@ function App(props) {
       JsxRuntime.jsx(ScaleCircle.make, {
         scale: majorScale,
         radius: 300
+      }),
+      JsxRuntime.jsx(Fretboard.make, {
+        openStrings: [
+          "E",
+          "B",
+          "G",
+          "D",
+          "A",
+          "E"
+        ],
+        className: "mt-6 mx-auto"
       }),
       JsxRuntime.jsx("code", {
         children: JSON.stringify(majorScale),

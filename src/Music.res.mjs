@@ -43,6 +43,8 @@ function displayNote(note) {
   }
 }
 
+let noteElement = displayNote;
+
 let chromaticRing = Ring.make([
   "C",
   "CSharp",
@@ -121,6 +123,7 @@ let Scale = {
 export {
   majorScalePattern,
   displayNote,
+  noteElement,
   chromaticRing,
   semitonesBetween,
   Scale,
