@@ -15,7 +15,9 @@ module Note = {
 module Fret = {
   @react.component
   let make = (~note: note) => {
-    <div className="border-r-4 border-neutral-400 w-[100px] p-2 flex items-center justify-end">
+    <div
+      className="border-r-4 border-neutral-400 flex-1 min-w-[40px] p-2 flex items-center justify-end"
+    >
       <Note note={note} highlight={note == FSharp} />
     </div>
   }
@@ -24,7 +26,9 @@ module Fret = {
 module OpenString = {
   @react.component
   let make = (~openNote: note) => {
-    <Note note={openNote} />
+    <div className="shrink-0">
+      <Note note={openNote} />
+    </div>
   }
 }
 
@@ -32,9 +36,9 @@ module GuitarString = {
   @react.component
   let make = (~openNote: note, ~maxFrets: int=15, ~addFretMarker: bool=false) => {
     let openNoteIdx = chromaticRing->Ring.indexOf(openNote)
-    <div className="flex gap-4 items-center">
+    <div className="flex gap-4 items-center w-full">
       <OpenString openNote={openNote} />
-      <div className="border border-zinc-950 flex">
+      <div className="border border-zinc-950 flex flex-1">
         {Array.fromInitializer(~length=maxFrets, i => {
           let fret = i + 1
           let note = chromaticRing->Ring.at(openNoteIdx + fret)
@@ -45,60 +49,47 @@ module GuitarString = {
   }
 }
 
-module FretMarkers = {
-  type fretMarkers = SingleDot | DoubleDot | NoDots
+module FretMarker = {
+  @react.component
+  let make = (~fret: int) => {
+    let hasSingleDot = {
+      let positionInOctave = mod(fret, 12)
+      [3, 5, 7, 9]->Array.includes(positionInOctave)
+    }
+    let hasDoubleDot = mod(fret, 12) == 0
 
+    <div className="flex-1 min-w-[40px] h-full flex flex-col items-center justify-center">
+      {if hasDoubleDot {
+        <div className="h-1/2 flex flex-col justify-evenly items-center">
+          <div className="bg-amber-100 w-[20px] h-[20px] rounded-full" />
+          <div className="bg-amber-100 w-[20px] h-[20px] rounded-full" />
+        </div>
+      } else if hasSingleDot {
+        <div className="bg-amber-100 w-[20px] h-[20px] rounded-full" />
+      } else {
+        React.null
+      }}
+    </div>
+  }
+}
+
+module FretMarkers = {
   @react.component
   let make = (~maxFrets: int) => {
-    Array.fromInitializer(~length=maxFrets, i => {
-      let fret = i + 1
-      let marker = if mod(fret, 12) == 0 {
-        DoubleDot
-      } else if {
-        let positionInOctave = mod(fret, 12)
-        [3, 5, 7, 9]->Array.includes(positionInOctave)
-      } {
-        SingleDot
-      } else {
-        NoDots
-      }
-
-      let leftOffset = 48 // open string width
-      let fretWidthOffset = 50
-      let left = px(leftOffset + i * 100 + fretWidthOffset)
-
-      switch marker {
-      | NoDots => React.null
-      | SingleDot =>
-        <div
-          key={Int.toString(i)}
-          style={{left: left}}
-          className="absolute top-1/2 z-[-1] -translate-y-1/2 -translate-x-1/2 bg-amber-100 w-[25px] h-[25px] rounded-full"
-        >
-        </div>
-      | DoubleDot =>
-        <>
-          <div
-            key={Int.toString(i)}
-            style={{left: left}}
-            className="absolute top-1/3 z-[-1] -translate-y-1/2 -translate-x-1/2 bg-amber-100 w-[25px] h-[25px] rounded-full"
-          >
-          </div>
-          <div
-            key={Int.toString(i)}
-            style={{left: left}}
-            className="absolute top-2/3 z-[-1] -translate-y-1/2 -translate-x-1/2 bg-amber-100 w-[25px] h-[25px] rounded-full"
-          >
-          </div>
-        </>
-      }
-    })->React.array
+    <div className="absolute inset-0 flex gap-4 z-[-1] pointer-events-none">
+      <div className="shrink-0 w-[30px]" /> // spacer for open string
+      <div className="flex flex-1 h-full">
+        {Array.fromInitializer(~length=maxFrets, i => {
+          <FretMarker key={Int.toString(i)} fret={i + 1} />
+        })->React.array}
+      </div>
+    </div>
   }
 }
 
 @react.component
 let make = (~openStrings: array<note>, ~maxFrets: int=15, ~className="") => {
-  <div className={`overflow-auto select-none relative isolate bg-transparent ${className}`}>
+  <div className={`overflow-auto select-none relative isolate ${className}`}>
     <FretMarkers maxFrets={maxFrets} />
     {openStrings
     ->Array.map(openNote => {

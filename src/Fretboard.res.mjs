@@ -2,7 +2,6 @@
 
 import * as Ring from "./Ring.res.mjs";
 import * as Music from "./Music.res.mjs";
-import * as Iluvatar from "./Iluvatar.res.mjs";
 import * as Stdlib_Array from "@rescript/runtime/lib/es6/Stdlib_Array.js";
 import * as JsxRuntime from "react/jsx-runtime";
 
@@ -27,7 +26,7 @@ function Fretboard$Fret(props) {
       note: note,
       highlight: note === "FSharp"
     }),
-    className: "border-r-4 border-neutral-400 w-[100px] p-2 flex items-center justify-end"
+    className: "border-r-4 border-neutral-400 flex-1 min-w-[40px] p-2 flex items-center justify-end"
   });
 }
 
@@ -36,8 +35,11 @@ let Fret = {
 };
 
 function Fretboard$OpenString(props) {
-  return JsxRuntime.jsx(Fretboard$Note, {
-    note: props.openNote
+  return JsxRuntime.jsx("div", {
+    children: JsxRuntime.jsx(Fretboard$Note, {
+      note: props.openNote
+    }),
+    className: "shrink-0"
   });
 }
 
@@ -63,10 +65,10 @@ function Fretboard$GuitarString(props) {
             note: note
           }, String(i));
         }),
-        className: "border border-zinc-950 flex"
+        className: "border border-zinc-950 flex flex-1"
       })
     ],
-    className: "flex gap-4 items-center"
+    className: "flex gap-4 items-center w-full"
   });
 }
 
@@ -74,50 +76,54 @@ let GuitarString = {
   make: Fretboard$GuitarString
 };
 
+function Fretboard$FretMarker(props) {
+  let fret = props.fret;
+  let positionInOctave = fret % 12;
+  let hasSingleDot = [
+    3,
+    5,
+    7,
+    9
+  ].includes(positionInOctave);
+  let hasDoubleDot = fret % 12 === 0;
+  return JsxRuntime.jsx("div", {
+    children: hasDoubleDot ? JsxRuntime.jsxs("div", {
+        children: [
+          JsxRuntime.jsx("div", {
+            className: "bg-amber-100 w-[20px] h-[20px] rounded-full"
+          }),
+          JsxRuntime.jsx("div", {
+            className: "bg-amber-100 w-[20px] h-[20px] rounded-full"
+          })
+        ],
+        className: "h-1/2 flex flex-col justify-evenly items-center"
+      }) : (
+        hasSingleDot ? JsxRuntime.jsx("div", {
+            className: "bg-amber-100 w-[20px] h-[20px] rounded-full"
+          }) : null
+      ),
+    className: "flex-1 min-w-[40px] h-full flex flex-col items-center justify-center"
+  });
+}
+
+let FretMarker = {
+  make: Fretboard$FretMarker
+};
+
 function Fretboard$FretMarkers(props) {
-  return Stdlib_Array.fromInitializer(props.maxFrets, i => {
-    let fret = i + 1 | 0;
-    let marker;
-    if (fret % 12 === 0) {
-      marker = "DoubleDot";
-    } else {
-      let positionInOctave = fret % 12;
-      marker = [
-        3,
-        5,
-        7,
-        9
-      ].includes(positionInOctave) ? "SingleDot" : "NoDots";
-    }
-    let left = Iluvatar.px((48 + (i * 100 | 0) | 0) + 50 | 0);
-    switch (marker) {
-      case "SingleDot" :
-        return JsxRuntime.jsx("div", {
-          className: "absolute top-1/2 z-[-1] -translate-y-1/2 -translate-x-1/2 bg-amber-100 w-[25px] h-[25px] rounded-full",
-          style: {
-            left: left
-          }
-        }, i.toString());
-      case "DoubleDot" :
-        return JsxRuntime.jsxs(JsxRuntime.Fragment, {
-          children: [
-            JsxRuntime.jsx("div", {
-              className: "absolute top-1/3 z-[-1] -translate-y-1/2 -translate-x-1/2 bg-amber-100 w-[25px] h-[25px] rounded-full",
-              style: {
-                left: left
-              }
-            }, i.toString()),
-            JsxRuntime.jsx("div", {
-              className: "absolute top-2/3 z-[-1] -translate-y-1/2 -translate-x-1/2 bg-amber-100 w-[25px] h-[25px] rounded-full",
-              style: {
-                left: left
-              }
-            }, i.toString())
-          ]
-        });
-      case "NoDots" :
-        return null;
-    }
+  return JsxRuntime.jsxs("div", {
+    children: [
+      JsxRuntime.jsx("div", {
+        className: "shrink-0 w-[30px]"
+      }),
+      JsxRuntime.jsx("div", {
+        children: Stdlib_Array.fromInitializer(props.maxFrets, i => JsxRuntime.jsx(Fretboard$FretMarker, {
+          fret: i + 1 | 0
+        }, i.toString())),
+        className: "flex flex-1 h-full"
+      })
+    ],
+    className: "absolute inset-0 flex gap-4 z-[-1] pointer-events-none"
   });
 }
 
@@ -140,7 +146,7 @@ function Fretboard(props) {
         maxFrets: maxFrets
       }, Music.displayNote(openNote)))
     ],
-    className: `overflow-auto select-none relative isolate bg-transparent ` + className
+    className: `overflow-auto select-none relative isolate ` + className
   });
 }
 
@@ -151,6 +157,7 @@ export {
   Fret,
   OpenString,
   GuitarString,
+  FretMarker,
   FretMarkers,
   make,
 }
