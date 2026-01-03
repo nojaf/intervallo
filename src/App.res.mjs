@@ -30,6 +30,8 @@ function App(props) {
     params.set("scale", Music.urlEncodeScalePattern(scalePattern));
     if (activeNote !== undefined) {
       params.set("note", Music.urlEncodeNote(activeNote));
+    } else {
+      params.delete("note");
     }
     let newUrl = location.origin + location.pathname + `?` + params.toString();
     history.replaceState({}, "", newUrl);

@@ -18,7 +18,7 @@ let make = (~root: note, ~scale: array<step>, ~note: option<note>) => {
     params->URLSearchParams.set(~name="root", ~value=Music.urlEncodeNote(rootNote))
     params->URLSearchParams.set(~name="scale", ~value=Music.urlEncodeScalePattern(scalePattern))
     switch activeNote {
-    | None => ()
+    | None => params->URLSearchParams.delete(~name="note")
     | Some(note) => params->URLSearchParams.set(~name="note", ~value=Music.urlEncodeNote(note))
     }
 
