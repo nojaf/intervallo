@@ -88,9 +88,9 @@ type chord = {
 let chordName = chord => {
   let root = displayNote(chord.root)
   switch chord.quality {
-  | Major => root + "M"
-  | Minor => root + "m"
-  | Diminished => root + "dim"
+  | Major => root + " Major"
+  | Minor => root + " minor"
+  | Diminished => root + " diminished"
   }
 }
 

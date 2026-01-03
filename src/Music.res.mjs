@@ -137,11 +137,11 @@ function chordName(chord) {
   let match = chord.quality;
   switch (match) {
     case "Major" :
-      return root + "M";
+      return root + " Major";
     case "Minor" :
-      return root + "m";
+      return root + " minor";
     case "Diminished" :
-      return root + "dim";
+      return root + " diminished";
   }
 }
 
