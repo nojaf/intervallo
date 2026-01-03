@@ -3,6 +3,7 @@
 import * as Ring from "./Ring.res.mjs";
 import * as Belt_Array from "@rescript/runtime/lib/es6/Belt_Array.js";
 import * as Stdlib_Array from "@rescript/runtime/lib/es6/Stdlib_Array.js";
+import * as Primitive_object from "@rescript/runtime/lib/es6/Primitive_object.js";
 
 let majorScalePattern = [
   "WholeStep",
@@ -23,6 +24,24 @@ let minorScalePattern = [
   "WholeStep",
   "WholeStep"
 ];
+
+function urlEncodeScalePattern(pattern) {
+  if (Primitive_object.equal(pattern, majorScalePattern)) {
+    return "major";
+  } else if (Primitive_object.equal(pattern, minorScalePattern)) {
+    return "minor";
+  } else {
+    return "custom";
+  }
+}
+
+function urlDecodeScalePattern(pattern) {
+  if (pattern === "minor") {
+    return minorScalePattern;
+  } else {
+    return majorScalePattern;
+  }
+}
 
 function displayNote(note) {
   switch (note) {
@@ -53,6 +72,64 @@ function displayNote(note) {
   }
 }
 
+function urlEncodeNote(note) {
+  switch (note) {
+    case "C" :
+      return "c";
+    case "CSharp" :
+      return "csharp";
+    case "D" :
+      return "d";
+    case "DSharp" :
+      return "dsharp";
+    case "E" :
+      return "e";
+    case "F" :
+      return "f";
+    case "FSharp" :
+      return "fsharp";
+    case "G" :
+      return "g";
+    case "GSharp" :
+      return "gsharp";
+    case "A" :
+      return "a";
+    case "ASharp" :
+      return "asharp";
+    case "B" :
+      return "b";
+  }
+}
+
+function urlDecodeNote(note) {
+  switch (note) {
+    case "a" :
+      return "A";
+    case "asharp" :
+      return "ASharp";
+    case "b" :
+      return "B";
+    case "csharp" :
+      return "CSharp";
+    case "d" :
+      return "D";
+    case "dsharp" :
+      return "DSharp";
+    case "e" :
+      return "E";
+    case "f" :
+      return "F";
+    case "fsharp" :
+      return "FSharp";
+    case "g" :
+      return "G";
+    case "gsharp" :
+      return "GSharp";
+    default:
+      return "C";
+  }
+}
+
 let noteElement = displayNote;
 
 function chordName(chord) {
@@ -60,9 +137,9 @@ function chordName(chord) {
   let match = chord.quality;
   switch (match) {
     case "Major" :
-      return root + "maj";
+      return root + "M";
     case "Minor" :
-      return root + "min";
+      return root + "m";
     case "Diminished" :
       return root + "dim";
   }
@@ -148,7 +225,11 @@ let Scale = {
 export {
   majorScalePattern,
   minorScalePattern,
+  urlEncodeScalePattern,
+  urlDecodeScalePattern,
   displayNote,
+  urlEncodeNote,
+  urlDecodeNote,
   noteElement,
   chordName,
   chromaticRing,

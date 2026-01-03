@@ -10,17 +10,34 @@ import * as Primitive_object from "@rescript/runtime/lib/es6/Primitive_object.js
 import * as JsxRuntime from "react/jsx-runtime";
 
 function App(props) {
-  let match = React.useState(() => "C");
+  let note = props.note;
+  let scale = props.scale;
+  let root = props.root;
+  let match = React.useState(() => root);
   let setRootNote = match[1];
   let rootNote = match[0];
-  let match$1 = React.useState(() => Music.majorScalePattern);
+  let match$1 = React.useState(() => scale);
   let setScalePattern = match$1[1];
   let scalePattern = match$1[0];
   let majorScale = Music.Scale.make(scalePattern, rootNote);
   let unusedNotes = Ring.subtract(Music.chromaticRing, majorScale.notes);
-  let match$2 = React.useState(() => {});
+  let match$2 = React.useState(() => note);
   let setActiveNote = match$2[1];
   let activeNote = match$2[0];
+  React.useEffect(() => {
+    let params = new URLSearchParams(location.search);
+    params.set("root", Music.urlEncodeNote(rootNote));
+    params.set("scale", Music.urlEncodeScalePattern(scalePattern));
+    if (activeNote !== undefined) {
+      params.set("note", Music.urlEncodeNote(activeNote));
+    }
+    let newUrl = location.origin + location.pathname + `?` + params.toString();
+    history.replaceState({}, "", newUrl);
+  }, [
+    rootNote,
+    scalePattern,
+    activeNote
+  ]);
   let tmp;
   if (activeNote !== undefined) {
     let chord = Music.Scale.chordForNote(majorScale, activeNote);

@@ -173,11 +173,11 @@ function Fretboard(props) {
       JsxRuntime.jsx(Fretboard$FretMarkers, {
         maxFrets: maxFrets
       }),
-      props.openStrings.map(openNote => JsxRuntime.jsx(Fretboard$GuitarString, {
+      props.openStrings.map((openNote, idx) => JsxRuntime.jsx(Fretboard$GuitarString, {
         openNote: openNote,
         maxFrets: maxFrets,
         highlighter: highlighter
-      }, Music.displayNote(openNote)))
+      }, Music.displayNote(openNote) + String(idx)))
     ],
     className: `overflow-auto select-none relative ` + className
   });

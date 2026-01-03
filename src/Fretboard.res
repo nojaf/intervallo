@@ -126,9 +126,12 @@ let make = (
   <div className={`overflow-auto select-none relative ${className}`}>
     <FretMarkers maxFrets={maxFrets} />
     {openStrings
-    ->Array.map(openNote => {
+    ->Array.mapWithIndex((openNote, idx) => {
       <GuitarString
-        key={displayNote(openNote)} openNote={openNote} maxFrets={maxFrets} highlighter
+        key={displayNote(openNote) ++ String.make(idx)}
+        openNote={openNote}
+        maxFrets={maxFrets}
+        highlighter
       />
     })
     ->React.array}

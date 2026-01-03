@@ -3,6 +3,23 @@ type step = HalfStep | WholeStep
 let majorScalePattern = [WholeStep, WholeStep, HalfStep, WholeStep, WholeStep, WholeStep, HalfStep]
 let minorScalePattern = [WholeStep, HalfStep, WholeStep, WholeStep, HalfStep, WholeStep, WholeStep]
 
+let urlEncodeScalePattern = (pattern: array<step>) => {
+  if pattern == majorScalePattern {
+    "major"
+  } else if pattern == minorScalePattern {
+    "minor"
+  } else {
+    "custom"
+  }
+}
+
+let urlDecodeScalePattern = (pattern: string) => {
+  switch pattern {
+  | "minor" => minorScalePattern
+  | _ => majorScalePattern
+  }
+}
+
 type note = C | CSharp | D | DSharp | E | F | FSharp | G | GSharp | A | ASharp | B
 
 let displayNote = (note: note): string => {
@@ -22,6 +39,41 @@ let displayNote = (note: note): string => {
   }
 }
 
+let urlEncodeNote = (note: note): string => {
+  switch note {
+  | C => "c"
+  | CSharp => "csharp"
+  | D => "d"
+  | DSharp => "dsharp"
+  | E => "e"
+  | F => "f"
+  | FSharp => "fsharp"
+  | G => "g"
+  | GSharp => "gsharp"
+  | A => "a"
+  | ASharp => "asharp"
+  | B => "b"
+  }
+}
+
+let urlDecodeNote = (note: string): note => {
+  switch note {
+  | "c" => C
+  | "csharp" => CSharp
+  | "d" => D
+  | "dsharp" => DSharp
+  | "e" => E
+  | "f" => F
+  | "fsharp" => FSharp
+  | "g" => G
+  | "gsharp" => GSharp
+  | "a" => A
+  | "asharp" => ASharp
+  | "b" => B
+  | _ => C
+  }
+}
+
 let noteElement = note => React.string(displayNote(note))
 
 type chordQuality = Major | Minor | Diminished
@@ -36,8 +88,8 @@ type chord = {
 let chordName = chord => {
   let root = displayNote(chord.root)
   switch chord.quality {
-  | Major => root + "maj"
-  | Minor => root + "min"
+  | Major => root + "M"
+  | Minor => root + "m"
   | Diminished => root + "dim"
   }
 }

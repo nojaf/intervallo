@@ -1,12 +1,32 @@
 open Music
 
 @react.component
-let make = () => {
-  let (rootNote, setRootNote) = React.useState(_ => C)
-  let (scalePattern, setScalePattern) = React.useState(_ => majorScalePattern)
+let make = (~root: note, ~scale: array<step>, ~note: option<note>) => {
+  let (rootNote, setRootNote) = React.useState(_ => root)
+  let (scalePattern, setScalePattern) = React.useState(_ => scale)
   let majorScale = Scale.make(scalePattern, rootNote)
   let unusedNotes = chromaticRing->Ring.subtract(majorScale.notes)
-  let (activeNote, setActiveNote) = React.useState(_ => None)
+  let (activeNote, setActiveNote) = React.useState(_ => note)
+
+  // Update url as selection is changed
+  React.useEffect3(() => {
+    open WebAPI
+    open WebAPI.Global
+
+    let params = URLSearchParams.fromString(location.search)
+
+    params->URLSearchParams.set(~name="root", ~value=Music.urlEncodeNote(rootNote))
+    params->URLSearchParams.set(~name="scale", ~value=Music.urlEncodeScalePattern(scalePattern))
+    switch activeNote {
+    | None => ()
+    | Some(note) => params->URLSearchParams.set(~name="note", ~value=Music.urlEncodeNote(note))
+    }
+
+    let newUrl = `${location.origin}${location.pathname}?${params->URLSearchParams.toString}`
+    history->History.replaceState(~data=JSON.Object(dict{}), ~unused="", ~url=newUrl)
+
+    None
+  }, (rootNote, scalePattern, activeNote))
 
   <div className="w-full h-full p-8">
     <h1 className="font-title text-2xl md:text-3xl lg:text-4xl font-bold">

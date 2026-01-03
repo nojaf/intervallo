@@ -7,6 +7,7 @@
       "dependencies": {
         "@rescript/react": "^0.14.0",
         "@rescript/runtime": "^12.0.2",
+        "@rescript/webapi": "^0.1.0-experimental-067a895",
         "react": "^19.2.3",
         "react-dom": "^19.2.3",
       },
@@ -99,6 +100,8 @@
     "@rescript/react": ["@rescript/react@0.14.0", "", { "peerDependencies": { "react": ">=19.0.0", "react-dom": ">=19.0.0" } }, "sha512-ncOHWK7ujQmff+QMYKRmtwETvJVolzkwRpDa0MFenEXdUz9ZYywNbq+xH9F9RDQeSwC3/4s9JeUQVyTu4fMpHw=="],
 
     "@rescript/runtime": ["@rescript/runtime@12.0.2", "", {}, "sha512-Jma1QEgns/WlWeVap/Mv6dVbFEKmftPOrmwQbzLQnnrQ9z6PJjorHIvDMQUigQKnvM/4RhRJ3LiG+CsNtgS9ww=="],
+
+    "@rescript/webapi": ["@rescript/webapi@0.1.0-experimental-067a895", "", { "peerDependencies": { "rescript": ">=12.0.0 <13" } }, "sha512-MeslA/152d5bHmlmwVVJv3Iu4jPmX/TLLouXZ0/TF6ynqvDpoEK86GDvvmzvHMAfp1IEfkSuB+OWt1eVfAkY8A=="],
 
     "@rescript/win32-x64": ["@rescript/win32-x64@12.0.2", "", { "os": "win32", "cpu": "x64" }, "sha512-QcNQiok3H2Xd+cReB1kpH4hlPXnT7DA6ETsJfZugTUOKOdAYLTJ+Imynv+ojuafkUrwa2v0tZAiqHaQsDjf9IQ=="],
 
