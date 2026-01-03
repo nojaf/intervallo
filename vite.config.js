@@ -18,4 +18,5 @@ export default defineConfig({
       ignored: ["**/lib/bs/**", "**/lib/ocaml/**", "**/lib/rescript.lock"],
     },
   },
+  base: "/intervallo/",
 });
