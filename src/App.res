@@ -4,8 +4,8 @@ open Music
 let make = (~root: note, ~scale: array<step>, ~note: option<note>) => {
   let (rootNote, setRootNote) = React.useState(_ => root)
   let (scalePattern, setScalePattern) = React.useState(_ => scale)
-  let majorScale = Scale.make(scalePattern, rootNote)
-  let unusedNotes = chromaticRing->Ring.subtract(majorScale.notes)
+  let scale = Scale.make(scalePattern, rootNote)
+  let unusedNotes = chromaticRing->Ring.subtract(scale.notes)
   let (activeNote, setActiveNote) = React.useState(_ => note)
 
   // Update url as selection is changed
@@ -57,16 +57,19 @@ let make = (~root: note, ~scale: array<step>, ~note: option<note>) => {
     <Fretboard
       openStrings=[E, B, G, D, A, E]
       className="my-6 mx-auto"
-      primary={majorScale.rootNote}
+      primary={scale.rootNote}
       grayedOut={unusedNotes}
     />
     <div className="flex flex-col items-center justify-center gap-4">
-      <ScaleCircle
-        scale={majorScale}
-        radius={300}
-        activeNote=?activeNote
-        onNoteClick={note => setActiveNote(_ => Some(note))}
-      />
+      <div className="flex gap-6 items-center">
+        <ScaleCircle
+          scale={scale}
+          radius={300}
+          activeNote=?activeNote
+          onNoteClick={note => setActiveNote(_ => Some(note))}
+        />
+        <ChordsInScale scale={scale} />
+      </div>
       {switch activeNote {
       | None => React.null
       | Some(_) =>
@@ -78,7 +81,7 @@ let make = (~root: note, ~scale: array<step>, ~note: option<note>) => {
     {switch activeNote {
     | None => React.null
     | Some(activeNote) => {
-        let chord = majorScale->Scale.chordForNote(activeNote)
+        let chord = scale->Scale.chordForNote(activeNote)
         let grayedOut =
           allNotes->Set.difference(Set.fromArray([chord.root, chord.third, chord.fifth]))
         <>
@@ -93,7 +96,7 @@ let make = (~root: note, ~scale: array<step>, ~note: option<note>) => {
         </>
       }
     }}
-    // <code className="mt-4 block"> {jsonStringifyAny(majorScale)} </code>
+    // <code className="mt-4 block"> {jsonStringifyAny(scale)} </code>
     // <code className="mt-4 block"> {jsonStringifyAny(cMajorChord)} </code>
   </div>
 }

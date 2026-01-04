@@ -6,6 +6,7 @@ import * as React from "react";
 import * as Fretboard from "./Fretboard.res.mjs";
 import * as ScaleCircle from "./ScaleCircle.res.mjs";
 import * as ButtonToggle from "./ButtonToggle.res.mjs";
+import * as ChordsInScale from "./ChordsInScale.res.mjs";
 import * as Primitive_object from "@rescript/runtime/lib/es6/Primitive_object.js";
 import * as JsxRuntime from "react/jsx-runtime";
 
@@ -19,8 +20,8 @@ function App(props) {
   let match$1 = React.useState(() => scale);
   let setScalePattern = match$1[1];
   let scalePattern = match$1[0];
-  let majorScale = Music.Scale.make(scalePattern, rootNote);
-  let unusedNotes = Ring.subtract(Music.chromaticRing, majorScale.notes);
+  let scale$1 = Music.Scale.make(scalePattern, rootNote);
+  let unusedNotes = Ring.subtract(Music.chromaticRing, scale$1.notes);
   let match$2 = React.useState(() => note);
   let setActiveNote = match$2[1];
   let activeNote = match$2[0];
@@ -42,7 +43,7 @@ function App(props) {
   ]);
   let tmp;
   if (activeNote !== undefined) {
-    let chord = Music.Scale.chordForNote(majorScale, activeNote);
+    let chord = Music.Scale.chordForNote(scale$1, activeNote);
     let grayedOut = Music.allNotes.difference(new Set([
       chord.root,
       chord.third,
@@ -126,15 +127,23 @@ function App(props) {
         ],
         className: "my-6 mx-auto",
         grayedOut: unusedNotes,
-        primary: majorScale.rootNote
+        primary: scale$1.rootNote
       }),
       JsxRuntime.jsxs("div", {
         children: [
-          JsxRuntime.jsx(ScaleCircle.make, {
-            scale: majorScale,
-            radius: 300,
-            onNoteClick: note => setActiveNote(param => note),
-            activeNote: activeNote
+          JsxRuntime.jsxs("div", {
+            children: [
+              JsxRuntime.jsx(ScaleCircle.make, {
+                scale: scale$1,
+                radius: 300,
+                onNoteClick: note => setActiveNote(param => note),
+                activeNote: activeNote
+              }),
+              JsxRuntime.jsx(ChordsInScale.make, {
+                scale: scale$1
+              })
+            ],
+            className: "flex gap-6 items-center"
           }),
           activeNote !== undefined ? JsxRuntime.jsx("button", {
               children: "reset",
