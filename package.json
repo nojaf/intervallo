@@ -1,30 +1,36 @@
 {
   "name": "intervallo",
-  "private": true,
   "version": "0.0.0",
+  "private": true,
   "type": "module",
   "scripts": {
-    "res:build": "rescript",
-    "res:clean": "rescript clean",
-    "res:dev": "rescript watch",
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "check": "tsgo",
+    "lint": "oxlint",
+    "lint:fix": "oxlint --fix",
+    "fmt": "oxfmt",
+    "ci": "tsgo && oxlint && oxfmt"
   },
   "dependencies": {
-    "@rescript/react": "^0.14.0",
-    "@rescript/runtime": "^12.0.2",
-    "@rescript/webapi": "^0.1.0-experimental-067a895",
-    "react": "^19.2.3",
-    "react-dom": "^19.2.3"
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4"
   },
   "devDependencies": {
-    "@nojaf/vite-plugin-rescript": "^0.5.0",
-    "@tailwindcss/vite": "^4.1.18",
-    "@vitejs/plugin-react": "^5.1.2",
-    "daisyui": "^5.5.14",
-    "rescript": "^12.0.2",
-    "tailwindcss": "^4.1.18",
-    "vite": "^8.0.0-beta.5"
+    "@oxlint/plugins": "^1.57.0",
+    "@tailwindcss/vite": "^4.2.2",
+    "@types/bun": "^1.3.11",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "@typescript/native-preview": "^7.0.0-dev.20260325.1",
+    "@vitejs/plugin-react": "^6.0.1",
+    "daisyui": "^5.5.19",
+    "oxc-parser": "^0.123.0",
+    "oxfmt": "^0.43.0",
+    "oxlint": "^1.57.0",
+    "oxlint-tsgolint": "^0.18.1",
+    "tailwindcss": "^4.2.2",
+    "vite": "^8.0.3"
   }
 }
