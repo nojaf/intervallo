@@ -1,0 +1,76 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "plugins": ["typescript", "react", "react-perf", "promise"],
+  "jsPlugins": ["./lint-rules/plugin.ts"],
+  "categories": {},
+  "rules": {
+    "no-use-before-define": "error",
+    "intervallo/annotate-non-primitives": "error",
+    "intervallo/explicit-void-return": "error",
+    "typescript/consistent-return": "error",
+    "typescript/explicit-function-return-type": "error",
+    "typescript/no-restricted-types": [
+      "error",
+      {
+        "types": {
+          "Omit": {
+            "message": "Omit is banned. Define a new type explicitly."
+          },
+          "Pick": {
+            "message": "Pick is banned. Define a new type explicitly."
+          },
+          "ReturnType": {
+            "message": "ReturnType is banned. Use the concrete type directly."
+          }
+        }
+      }
+    ],
+    "promise/always-return": "error",
+    "promise/no-return-wrap": "error",
+    "promise/param-names": "error",
+    "promise/catch-or-return": "error",
+    "promise/no-nesting": "warn",
+    "promise/no-promise-in-callback": "warn",
+    "promise/no-callback-in-promise": "warn",
+    "promise/no-new-statics": "error",
+    "promise/valid-params": "warn",
+    "promise/no-multiple-resolved": "error"
+  },
+  "settings": {
+    "jsx-a11y": {
+      "polymorphicPropName": null,
+      "components": {},
+      "attributes": {}
+    },
+    "next": {
+      "rootDir": []
+    },
+    "react": {
+      "formComponents": [],
+      "linkComponents": [],
+      "version": null,
+      "componentWrapperFunctions": []
+    },
+    "jsdoc": {
+      "ignorePrivate": false,
+      "ignoreInternal": false,
+      "ignoreReplacesDocs": true,
+      "overrideReplacesDocs": true,
+      "augmentsExtendsReplacesDocs": false,
+      "implementsReplacesDocs": false,
+      "exemptDestructuredRootsFromChecks": false,
+      "tagNamePreference": {}
+    },
+    "vitest": {
+      "typecheck": false
+    }
+  },
+  "env": {
+    "builtin": true
+  },
+  "globals": {},
+  "ignorePatterns": ["dist/**"],
+  "options": {
+    "typeAware": true
+  }
+}

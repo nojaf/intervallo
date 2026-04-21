@@ -1,2 +1,6 @@
 [install]
 linker = "isolated"
+
+[run]
+# equivalent to `bun --bun` for all `bun run` commands
+bun = true
