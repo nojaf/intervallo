@@ -118,7 +118,7 @@ export function App({ root, scale, note }: AppProps): JSX.Element {
         )}
       </div>
       {activeNote !== undefined && <ChordDetail scale={currentScale} activeNote={activeNote} />}
-      <PositionFinder scale={currentScale} />
+      <PositionFinder key={`${currentScale.root}-${currentScale.quality}`} scale={currentScale} />
     </div>
   );
 }
