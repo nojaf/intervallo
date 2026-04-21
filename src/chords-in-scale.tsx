@@ -1,5 +1,5 @@
-import { type Note, type Scale, chordForNote, chordName } from "./music.ts";
 import type { JSX } from "react";
+import { type Note, type Scale, chordForNote, chordName } from "./music.ts";
 
 type ChordsInScaleProps = {
   readonly scale: Scale;

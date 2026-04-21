@@ -1,5 +1,5 @@
-import { type Note, type Scale, chordForNote, chordName, semitonesBetween } from "./music.ts";
 import type { JSX } from "react";
+import { type Note, type Scale, chordForNote, chordName, semitonesBetween } from "./music.ts";
 
 function isThirdOrFifth(scale: Scale, activeNote: Note | undefined, note: Note): boolean {
   if (activeNote === undefined) return false;

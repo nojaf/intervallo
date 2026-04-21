@@ -1,8 +1,8 @@
 import "./index.css";
-import { type Note, type Step, urlDecodeNote, urlDecodeScalePattern } from "./music.ts";
-import { App } from "./app.tsx";
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
+import { App } from "./app.tsx";
+import { type Note, type Step, urlDecodeNote, urlDecodeScalePattern } from "./music.ts";
 
 const rootElement: HTMLElement | null = document.getElementById("root");
 

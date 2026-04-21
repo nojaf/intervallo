@@ -145,3 +145,16 @@ export function chordForNote(scale: Scale, note: Note): Chord {
   const degree: number = scale.notes.indexOf(note);
   return chordAtIndex(scale, degree);
 }
+
+export function chordShortName(chord: Chord): string {
+  switch (chord.quality) {
+    case "major":
+      return chord.root;
+    case "minor":
+      return `${chord.root}m`;
+    case "diminished":
+      return `${chord.root}dim`;
+    default:
+      throw new Error(`Unknown chord quality: ${String(chord.quality satisfies never)}`);
+  }
+}

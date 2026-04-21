@@ -1,5 +1,5 @@
-import { type Note, chromaticRing } from "./music.ts";
 import type { JSX } from "react";
+import { type Note, chromaticRing } from "./music.ts";
 
 type NoteHighlight = "primary" | "secondary" | "grayed-out" | "regular";
 

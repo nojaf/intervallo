@@ -1,3 +1,7 @@
+import { type JSX, useEffect, useState } from "react";
+import { ButtonToggle } from "./button-toggle.tsx";
+import { ChordsInScale } from "./chords-in-scale.tsx";
+import { Fretboard } from "./fretboard.tsx";
 import {
   type Chord,
   type Note,
@@ -13,10 +17,7 @@ import {
   urlEncodeNote,
   urlEncodeScalePattern,
 } from "./music.ts";
-import { type JSX, useEffect, useState } from "react";
-import { ButtonToggle } from "./button-toggle.tsx";
-import { ChordsInScale } from "./chords-in-scale.tsx";
-import { Fretboard } from "./fretboard.tsx";
+import { PositionFinder } from "./position-finder.tsx";
 import { ScaleCircle } from "./scale-circle.tsx";
 
 type ChordDetailProps = {
@@ -70,7 +71,7 @@ export function App({ root, scale, note }: AppProps): JSX.Element {
   }, [rootNote, scalePattern, activeNote]);
 
   return (
-    <div className="w-full h-full p-8">
+    <div className="max-w-7/12 mx-auto h-full p-8">
       <h1 className="font-title text-2xl md:text-3xl lg:text-4xl font-bold">Intervallo</h1>
       <ButtonToggle
         items={chromaticRing.items}
@@ -117,6 +118,7 @@ export function App({ root, scale, note }: AppProps): JSX.Element {
         )}
       </div>
       {activeNote !== undefined && <ChordDetail scale={currentScale} activeNote={activeNote} />}
+      <PositionFinder scale={currentScale} />
     </div>
   );
 }

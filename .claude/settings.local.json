@@ -5,7 +5,9 @@
       "Bash(bun run:*)",
       "Bash(ls:*)",
       "Bash(find /Users/nojaf/Projects/intervallo -type d \\\\\\(-name lib -o -name bs -o -name ocaml \\\\\\) ! -path */node_modules/*)",
-      "Bash(wc:*)"
+      "Bash(wc:*)",
+      "WebFetch(domain:tabs.ultimate-guitar.com)",
+      "Bash(curl -s http://localhost:5174/intervallo/)"
     ]
   }
 }
