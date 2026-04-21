@@ -118,7 +118,10 @@ export function App({ root, scale, note }: AppProps): JSX.Element {
         )}
       </div>
       {activeNote !== undefined && <ChordDetail scale={currentScale} activeNote={activeNote} />}
-      <PositionFinder key={`${currentScale.root}-${currentScale.quality}`} scale={currentScale} />
+      <PositionFinder
+        key={`${currentScale.rootNote}-${urlEncodeScalePattern(scalePattern)}`}
+        scale={currentScale}
+      />
     </div>
   );
 }
