@@ -108,8 +108,10 @@ function findBestVoicing(
 ): Voicing | null {
   const chordNoteSet: Set<Note> = new Set<Note>([chord.root, chord.third, chord.fifth]);
   const numStrings: number = openStrings.length;
-  let bestScore: number = -Infinity;
-  let bestVoicing: Voicing | null = null;
+  let bestRootInBassScore: number = -Infinity;
+  let bestRootInBassVoicing: Voicing | null = null;
+  let bestAnyScore: number = -Infinity;
+  let bestAnyVoicing: Voicing | null = null;
 
   for (let startStr: number = 0; startStr <= numStrings - minStrings; startStr++) {
     for (let endStr: number = startStr + minStrings - 1; endStr < numStrings; endStr++) {
@@ -143,16 +145,27 @@ function findBestVoicing(
       if (impossible) continue;
 
       for (const voicing of generateVoicings(optionsPerString, startStr, chord)) {
+        const sfs: readonly StringFret[] = voicing.stringFrets;
+        if (sfs.some((sf: StringFret, i: number) => i > 0 && sf.note === sfs[i - 1]!.note)) {
+          continue;
+        }
         const score: number = scoreVoicing(voicing, endStr - startStr + 1);
-        if (score > bestScore) {
-          bestScore = score;
-          bestVoicing = voicing;
+        const lowestSf: StringFret = voicing.stringFrets.reduce((a: StringFret, b: StringFret) =>
+          a.stringIdx > b.stringIdx ? a : b,
+        );
+        if (lowestSf.note === chord.root && score > bestRootInBassScore) {
+          bestRootInBassScore = score;
+          bestRootInBassVoicing = voicing;
+        }
+        if (score > bestAnyScore) {
+          bestAnyScore = score;
+          bestAnyVoicing = voicing;
         }
       }
     }
   }
 
-  return bestVoicing;
+  return bestRootInBassVoicing ?? bestAnyVoicing;
 }
 
 /**
@@ -167,6 +180,7 @@ export function findPositionSolutions(
 ): PositionSolution[] {
   const { openStrings, windowSize, maxFrets, minStrings } = config;
   const solutions: PositionSolution[] = [];
+  const seenFingerprints: Set<string> = new Set();
 
   for (let windowStart: number = 0; windowStart + windowSize - 1 <= maxFrets; windowStart++) {
     const windowEnd: number = windowStart + windowSize - 1;
@@ -190,7 +204,16 @@ export function findPositionSolutions(
     }
 
     if (valid) {
-      solutions.push({ windowStart, windowEnd, chordVoicings });
+      const fingerprint: string = chordVoicings
+        .map(
+          ({ chord, voicing }: ChordVoicing) =>
+            `${chord.root}${chord.quality}:${voicing.stringFrets.map((sf: StringFret) => `${sf.stringIdx}@${sf.fret}`).join(",")}`,
+        )
+        .join("|");
+      if (!seenFingerprints.has(fingerprint)) {
+        seenFingerprints.add(fingerprint);
+        solutions.push({ windowStart, windowEnd, chordVoicings });
+      }
     }
   }
 

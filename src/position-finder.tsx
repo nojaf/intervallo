@@ -404,11 +404,16 @@ export function PositionFinder({ scale }: PositionFinderProps): JSX.Element {
   const borrowedIV: Chord = useMemo(() => buildBorrowedIV(scale), [scale]);
   const dorianVI: Chord = useMemo(() => buildDorianVI(scale), [scale]);
 
-  const selectedChords: readonly Chord[] = useMemo(
-    () =>
-      [...chords, borrowedIV, dorianVI].filter((chord: Chord) => selectedKeys.has(chordKey(chord))),
-    [chords, borrowedIV, dorianVI, selectedKeys],
-  );
+  const selectedChords: readonly Chord[] = useMemo(() => {
+    const seen: Map<string, Chord> = new Map<string, Chord>();
+    for (const chord of [...chords, borrowedIV, dorianVI]) {
+      const key: string = chordKey(chord);
+      if (selectedKeys.has(key) && !seen.has(key)) {
+        seen.set(key, chord);
+      }
+    }
+    return [...seen.values()];
+  }, [chords, borrowedIV, dorianVI, selectedKeys]);
 
   const scaleNotes: ReadonlySet<Note> = useMemo(() => new Set(scale.notes.items), [scale]);
 

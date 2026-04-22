@@ -35,7 +35,8 @@ function ChordDetail({ scale, activeNote }: ChordDetailProps): JSX.Element {
         openStrings={["E", "B", "G", "D", "A", "E"]}
         className="my-6 mx-auto"
         primary={activeNote}
-        secondary={new Set([chord.third, chord.fifth])}
+        secondary={new Set([chord.third])}
+        tertiary={new Set([chord.fifth])}
         grayedOut={grayedOut}
       />
     </>
@@ -71,7 +72,7 @@ export function App({ root, scale, note }: AppProps): JSX.Element {
   }, [rootNote, scalePattern, activeNote]);
 
   return (
-    <div className="max-w-7/12 mx-auto h-full p-8">
+    <div className="max-w-400 mx-auto h-full p-8">
       <h1 className="font-title text-2xl md:text-3xl lg:text-4xl font-bold">Intervallo</h1>
       <ButtonToggle
         items={chromaticRing.items}

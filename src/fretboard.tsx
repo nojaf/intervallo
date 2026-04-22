@@ -1,16 +1,18 @@
 import type { JSX } from "react";
 import { type Note, chromaticRing } from "./music.ts";
 
-type NoteHighlight = "primary" | "secondary" | "grayed-out" | "regular";
+type NoteHighlight = "primary" | "secondary" | "tertiary" | "grayed-out" | "regular";
 
 function highlightColors(highlight: NoteHighlight): string {
   switch (highlight) {
     case "regular":
       return "bg-zinc-950 text-white";
     case "primary":
-      return "bg-yellow-400 text-white";
+      return "bg-yellow-400 text-black";
     case "secondary":
       return "bg-orange-500 text-white";
+    case "tertiary":
+      return "bg-zinc-600 text-white";
     case "grayed-out":
       return "bg-zinc-950 opacity-10 text-white";
     default:
@@ -128,6 +130,7 @@ type FretboardProps = {
   readonly grayedOut?: Set<Note>;
   readonly primary?: Note;
   readonly secondary?: Set<Note>;
+  readonly tertiary?: Set<Note>;
 };
 
 export function Fretboard({
@@ -137,10 +140,12 @@ export function Fretboard({
   grayedOut = new Set(),
   primary,
   secondary = new Set(),
+  tertiary = new Set(),
 }: FretboardProps): JSX.Element {
   const highlighter: (note: Note) => NoteHighlight = (note: Note): NoteHighlight => {
     if (primary !== undefined && note === primary) return "primary";
     if (secondary.has(note)) return "secondary";
+    if (tertiary.has(note)) return "tertiary";
     if (grayedOut.has(note)) return "grayed-out";
     return "regular";
   };
