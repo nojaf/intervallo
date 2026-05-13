@@ -2,6 +2,7 @@ import { type JSX, useEffect, useState } from "react";
 import { ButtonToggle } from "./button-toggle.tsx";
 import { ChordsInScale } from "./chords-in-scale.tsx";
 import { Fretboard } from "./fretboard.tsx";
+import { IntervalQuiz } from "./interval-quiz.tsx";
 import {
   type Chord,
   type Note,
@@ -123,6 +124,7 @@ export function App({ root, scale, note }: AppProps): JSX.Element {
         key={`${currentScale.rootNote}-${urlEncodeScalePattern(scalePattern)}`}
         scale={currentScale}
       />
+      <IntervalQuiz scale={currentScale} />
     </div>
   );
 }

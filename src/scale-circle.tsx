@@ -48,8 +48,9 @@ type ScaleCircleProps = {
   readonly radius?: number;
   readonly padding?: number;
   readonly className?: string;
-  readonly onNoteClick: (note: Note) => void;
+  readonly onNoteClick?: (note: Note) => void;
   readonly activeNote?: Note | undefined;
+  readonly secondaryNote?: Note;
 };
 
 export function ScaleCircle({
@@ -59,6 +60,7 @@ export function ScaleCircle({
   className = "",
   onNoteClick,
   activeNote,
+  secondaryNote,
 }: ScaleCircleProps): JSX.Element {
   const size: number = radius + padding * 2;
   const center: number = size / 2;
@@ -120,10 +122,13 @@ export function ScaleCircle({
         const y: number = orbitRadius * Math.sin(angleInRadians) + center;
 
         const isActive: boolean = activeNote === note;
+        const isSecondary: boolean =
+          note === secondaryNote ||
+          (secondaryNote === undefined && isThirdOrFifth(scale, activeNote, note));
 
         const buttonStyle: string = isActive
           ? "bg-yellow-400 text-white"
-          : isThirdOrFifth(scale, activeNote, note)
+          : isSecondary
             ? "bg-orange-500 text-white"
             : "bg-zinc-950 text-white hover:bg-zinc-700";
 
@@ -132,7 +137,7 @@ export function ScaleCircle({
             key={idx}
             className={`btn btn-circle btn-sm absolute -translate-x-1/2 -translate-y-1/2 ${buttonStyle}`}
             style={{ left: `${x}px`, top: `${y}px` }}
-            onClick={() => onNoteClick(note)}
+            onClick={() => onNoteClick?.(note)}
           >
             {note}
           </button>
