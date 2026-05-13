@@ -127,6 +127,17 @@ function computeScaleIntervals(scale: Scale): readonly number[] {
   return Array.from(distances).sort((a: number, b: number) => a - b);
 }
 
+function computeIntervalNoteMap(scale: Scale): Map<number, Note> {
+  const notes: readonly Note[] = scale.notes.items;
+  const root: Note = notes[0]!;
+  const map: Map<number, Note> = new Map<number, Note>();
+  map.set(12, root);
+  for (let i = 1; i < notes.length; i++) {
+    map.set(semitonesBetween(root, notes[i]!), notes[i]!);
+  }
+  return map;
+}
+
 function buildQuestion(scale: Scale, direction: Direction): Question {
   const notes: readonly Note[] = scale.notes.items;
   const root: Note = notes[0]!;
@@ -174,6 +185,7 @@ export function IntervalQuiz({ scale }: IntervalQuizProps): JSX.Element {
   const [sessionRef] = useState<{ current: number }>(() => ({ current: 0 }));
 
   const scaleIntervals: readonly number[] = useMemo(() => computeScaleIntervals(scale), [scale]);
+  const intervalNoteMap: Map<number, Note> = useMemo(() => computeIntervalNoteMap(scale), [scale]);
 
   useEffect(() => {
     sessionRef.current++;
@@ -304,14 +316,20 @@ export function IntervalQuiz({ scale }: IntervalQuizProps): JSX.Element {
 
       {phase.kind !== "idle" && (
         <div className="flex justify-center my-4">
-          <ScaleCircle
-            scale={scale}
-            radius={150}
-            activeNote={scale.rootNote}
-            secondaryNote={
-              phase.question.noteA === scale.rootNote ? phase.question.noteB : phase.question.noteA
-            }
-          />
+          <div className="w-[190px] h-[190px]">
+            {phase.kind === "result" && (
+              <ScaleCircle
+                scale={scale}
+                radius={150}
+                activeNote={scale.rootNote}
+                secondaryNote={
+                  phase.question.noteA === scale.rootNote
+                    ? phase.question.noteB
+                    : phase.question.noteA
+                }
+              />
+            )}
+          </div>
         </div>
       )}
 
@@ -320,7 +338,9 @@ export function IntervalQuiz({ scale }: IntervalQuizProps): JSX.Element {
           items={scaleIntervals}
           onClick={handleAnswer}
           activeItem={0}
-          renderItem={(s: number) => intervalLabel(s)}
+          renderItem={(s: number) =>
+            `${intervalNoteMap.get(s) ?? "?"} — ${INTERVAL_NAMES[s] ?? "?"}`
+          }
           keyOf={(s: number) => String(s)}
           disabled={phase.kind === "result"}
           classNameOf={(semitones: number): string => {
