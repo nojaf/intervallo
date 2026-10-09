@@ -124,7 +124,10 @@ export function App({ root, scale, note }: AppProps): JSX.Element {
         key={`${currentScale.rootNote}-${urlEncodeScalePattern(scalePattern)}`}
         scale={currentScale}
       />
-      <IntervalQuiz scale={currentScale} />
+      <IntervalQuiz
+        key={`${currentScale.rootNote}-${urlEncodeScalePattern(scalePattern)}`}
+        scale={currentScale}
+      />
     </div>
   );
 }

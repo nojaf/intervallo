@@ -75,13 +75,11 @@ function generateVoicings(
       );
       if (chordNotes.every((n: Note) => usedNotes.has(n))) {
         results.push({
-          stringFrets: current.map(
-            (opt: { fret: number; note: Note }, i: number): StringFret => ({
-              stringIdx: startStringIdx + i,
-              fret: opt.fret,
-              note: opt.note,
-            }),
-          ),
+          stringFrets: current.map((opt: { fret: number; note: Note }, i: number): StringFret => ({
+            stringIdx: startStringIdx + i,
+            fret: opt.fret,
+            note: opt.note,
+          })),
         });
       }
       return;

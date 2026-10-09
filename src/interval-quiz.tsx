@@ -187,11 +187,15 @@ export function IntervalQuiz({ scale }: IntervalQuizProps): JSX.Element {
   const scaleIntervals: readonly number[] = useMemo(() => computeScaleIntervals(scale), [scale]);
   const intervalNoteMap: Map<number, Note> = useMemo(() => computeIntervalNoteMap(scale), [scale]);
 
+  // The parent keys this component by scale, so a scale change remounts it with fresh state.
+  // On unmount, bump the session so pending playback and the next-question timer stop.
   useEffect(() => {
-    sessionRef.current++;
-    setPhase({ kind: "idle" });
-    setScore({ correct: 0, total: 0 });
-  }, [scale, sessionRef]);
+    const session: { current: number } = sessionRef;
+    return (): void => {
+      session.current++;
+      return;
+    };
+  }, [sessionRef]);
 
   function doPlay(question: Question): void {
     const session: number = ++sessionRef.current;
