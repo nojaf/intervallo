@@ -1,24 +1,22 @@
 import type { JSX } from "react";
 import { type Note, chromaticRing } from "./music.ts";
+import { noteColor, rootRing } from "./note-colors.tsx";
 
-type NoteHighlight = "primary" | "secondary" | "tertiary" | "grayed-out" | "regular";
+export type NoteHighlight = "root" | "grayed-out" | "regular" | "label" | "hidden" | "muted";
 
-function highlightColors(highlight: NoteHighlight): string {
-  switch (highlight) {
-    case "regular":
-      return "bg-zinc-950 text-white";
-    case "primary":
-      return "bg-yellow-400 text-black";
-    case "secondary":
-      return "bg-orange-500 text-white";
-    case "tertiary":
-      return "bg-zinc-600 text-white";
-    case "grayed-out":
-      return "bg-zinc-950 opacity-10 text-white";
-    default:
-      throw new Error(`Unknown highlight: ${String(highlight satisfies never)}`);
-  }
+/** Decides how to draw the note at a given string and fret (fret 0 is the open string). */
+export type Highlighter = (note: Note, stringIdx: number, fret: number) => NoteHighlight;
+
+/** Highlights by note only: the root gets a ring, notes in `grayedOut` fade. */
+export function noteHighlighter(root: Note | undefined, grayedOut: Set<Note>): Highlighter {
+  return (note: Note): NoteHighlight => {
+    if (root !== undefined && note === root) return "root";
+    if (grayedOut.has(note)) return "grayed-out";
+    return "regular";
+  };
 }
+
+const circleSize: string = "h-7.5 w-7.5";
 
 type NoteCircleProps = {
   readonly note: Note;
@@ -26,13 +24,38 @@ type NoteCircleProps = {
 };
 
 function NoteCircle({ note, highlight }: NoteCircleProps): JSX.Element {
-  return (
-    <div
-      className={`z-2 rounded-full ${highlightColors(highlight)} flex items-center justify-center h-7.5 w-7.5 text-sm`}
-    >
-      {note}
-    </div>
-  );
+  switch (highlight) {
+    case "hidden":
+      return <div className={circleSize} />;
+    case "label":
+    case "muted":
+      return (
+        <div
+          className={`${circleSize} flex items-center justify-center text-sm text-base-content/50`}
+        >
+          {highlight === "muted" ? "×" : note}
+        </div>
+      );
+    case "regular":
+    case "root":
+    case "grayed-out": {
+      const colors: string =
+        highlight === "grayed-out"
+          ? "bg-neutral opacity-10 text-neutral-content"
+          : highlight === "root"
+            ? `${noteColor(note)} ${rootRing}`
+            : noteColor(note);
+      return (
+        <div
+          className={`z-2 rounded-full ${colors} flex items-center justify-center ${circleSize} text-sm`}
+        >
+          {note}
+        </div>
+      );
+    }
+    default:
+      throw new Error(`Unknown highlight: ${String(highlight satisfies never)}`);
+  }
 }
 
 type FretProps = {
@@ -42,7 +65,7 @@ type FretProps = {
 
 function Fret({ note, highlight }: FretProps): JSX.Element {
   return (
-    <div className="bg-yellow-800 border-r-4 border-neutral-400 flex-1 min-w-10 p-2 flex items-center justify-end">
+    <div className="bg-wood border-r-4 border-fret flex-1 min-w-10 p-2 flex items-center justify-end">
       <NoteCircle note={note} highlight={highlight} />
     </div>
   );
@@ -55,7 +78,7 @@ type OpenStringProps = {
 
 function OpenString({ openNote, highlight }: OpenStringProps): JSX.Element {
   return (
-    <div className="shrink-0">
+    <div className="shrink-0 pl-1">
       <NoteCircle note={openNote} highlight={highlight} />
     </div>
   );
@@ -63,20 +86,20 @@ function OpenString({ openNote, highlight }: OpenStringProps): JSX.Element {
 
 type GuitarStringProps = {
   readonly openNote: Note;
-  readonly maxFrets?: number;
-  readonly highlighter: (note: Note) => NoteHighlight;
+  readonly stringIdx: number;
+  readonly frets: readonly number[];
+  readonly highlighter: Highlighter;
 };
 
-function GuitarString({ openNote, maxFrets = 15, highlighter }: GuitarStringProps): JSX.Element {
+function GuitarString({ openNote, stringIdx, frets, highlighter }: GuitarStringProps): JSX.Element {
   const openNoteIdx: number = chromaticRing.indexOf(openNote);
   return (
     <div className="flex gap-4 items-center w-full">
-      <OpenString openNote={openNote} highlight={highlighter(openNote)} />
-      <div className="border border-zinc-950 flex flex-1">
-        {Array.from({ length: maxFrets }, (_: undefined, i: number) => {
-          const fret: number = i + 1;
+      <OpenString openNote={openNote} highlight={highlighter(openNote, stringIdx, 0)} />
+      <div className="border border-neutral flex flex-1">
+        {frets.map((fret: number) => {
           const note: Note = chromaticRing.at(openNoteIdx + fret);
-          return <Fret key={i} note={note} highlight={highlighter(note)} />;
+          return <Fret key={fret} note={note} highlight={highlighter(note, stringIdx, fret)} />;
         })}
       </div>
     </div>
@@ -96,27 +119,46 @@ function FretMarker({ fret }: FretMarkerProps): JSX.Element {
     <div className="flex-1 min-w-10 h-full flex flex-col items-center justify-center">
       {hasDoubleDot ? (
         <div className="h-1/2 flex flex-col justify-evenly items-center">
-          <div className="bg-amber-100 w-5 h-5 rounded-full" />
-          <div className="bg-amber-100 w-5 h-5 rounded-full" />
+          <div className="bg-inlay w-5 h-5 rounded-full" />
+          <div className="bg-inlay w-5 h-5 rounded-full" />
         </div>
       ) : hasSingleDot ? (
-        <div className="bg-amber-100 w-5 h-5 rounded-full" />
+        <div className="bg-inlay w-5 h-5 rounded-full" />
       ) : null}
     </div>
   );
 }
 
 type FretMarkersProps = {
-  readonly maxFrets: number;
+  readonly frets: readonly number[];
 };
 
-function FretMarkers({ maxFrets }: FretMarkersProps): JSX.Element {
+function FretMarkers({ frets }: FretMarkersProps): JSX.Element {
   return (
     <div className="absolute z-1 inset-0 flex gap-4 pointer-events-none">
-      <div className="shrink-0 w-7.5" />
+      <div className="shrink-0 w-8.5" />
       <div className="flex flex-1 h-full">
-        {Array.from({ length: maxFrets }, (_: undefined, i: number) => (
-          <FretMarker key={i} fret={i + 1} />
+        {frets.map((fret: number) => (
+          <FretMarker key={fret} fret={fret} />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+type FretNumbersProps = {
+  readonly frets: readonly number[];
+};
+
+function FretNumbers({ frets }: FretNumbersProps): JSX.Element {
+  return (
+    <div className="flex gap-4 text-xs text-base-content/60 mb-1">
+      <div className="shrink-0 w-8.5 text-center">open</div>
+      <div className="flex flex-1">
+        {frets.map((fret: number) => (
+          <div key={fret} className="flex-1 min-w-10 text-center">
+            {fret}
+          </div>
         ))}
       </div>
     </div>
@@ -125,42 +167,42 @@ function FretMarkers({ maxFrets }: FretMarkersProps): JSX.Element {
 
 type FretboardProps = {
   readonly openStrings: readonly Note[];
-  readonly maxFrets?: number;
+  readonly highlighter: Highlighter;
+  /** First and last fret drawn after the open strings. */
+  readonly fromFret?: number;
+  readonly toFret?: number;
+  readonly showFretNumbers?: boolean;
   readonly className?: string;
-  readonly grayedOut?: Set<Note>;
-  readonly primary?: Note;
-  readonly secondary?: Set<Note>;
-  readonly tertiary?: Set<Note>;
 };
 
 export function Fretboard({
   openStrings,
-  maxFrets = 15,
+  highlighter,
+  fromFret = 1,
+  toFret = 15,
+  showFretNumbers = false,
   className = "",
-  grayedOut = new Set(),
-  primary,
-  secondary = new Set(),
-  tertiary = new Set(),
 }: FretboardProps): JSX.Element {
-  const highlighter: (note: Note) => NoteHighlight = (note: Note): NoteHighlight => {
-    if (primary !== undefined && note === primary) return "primary";
-    if (secondary.has(note)) return "secondary";
-    if (tertiary.has(note)) return "tertiary";
-    if (grayedOut.has(note)) return "grayed-out";
-    return "regular";
-  };
+  const frets: number[] = Array.from(
+    { length: toFret - fromFret + 1 },
+    (_: undefined, i: number) => fromFret + i,
+  );
 
   return (
-    <div className={`overflow-auto select-none relative ${className}`}>
-      <FretMarkers maxFrets={maxFrets} />
-      {openStrings.map((openNote: Note, idx: number) => (
-        <GuitarString
-          key={`${openNote}${idx}`}
-          openNote={openNote}
-          maxFrets={maxFrets}
-          highlighter={highlighter}
-        />
-      ))}
+    <div className={`overflow-auto select-none ${className}`}>
+      {showFretNumbers && <FretNumbers frets={frets} />}
+      <div className="relative">
+        <FretMarkers frets={frets} />
+        {openStrings.map((openNote: Note, idx: number) => (
+          <GuitarString
+            key={`${openNote}${idx}`}
+            openNote={openNote}
+            stringIdx={idx}
+            frets={frets}
+            highlighter={highlighter}
+          />
+        ))}
+      </div>
     </div>
   );
 }

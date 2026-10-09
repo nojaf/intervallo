@@ -1,6 +1,7 @@
 import { type JSX, type ReactNode, useEffect, useMemo, useState } from "react";
 import { ButtonToggle } from "./button-toggle.tsx";
 import { type Note, type Scale, chromaticRing, semitonesBetween } from "./music.ts";
+import { NoteDot } from "./note-colors.tsx";
 import { ScaleCircle } from "./scale-circle.tsx";
 
 const NOTE_FREQUENCIES: Record<Note, number> = {
@@ -342,9 +343,15 @@ export function IntervalQuiz({ scale }: IntervalQuizProps): JSX.Element {
           items={scaleIntervals}
           onClick={handleAnswer}
           activeItem={0}
-          renderItem={(s: number) =>
-            `${intervalNoteMap.get(s) ?? "?"} — ${INTERVAL_NAMES[s] ?? "?"}`
-          }
+          renderItem={(s: number): ReactNode => {
+            const note: Note | undefined = intervalNoteMap.get(s);
+            return (
+              <span className="flex items-center gap-2">
+                {note !== undefined && <NoteDot note={note} />}
+                {`${note ?? "?"} — ${INTERVAL_NAMES[s] ?? "?"}`}
+              </span>
+            );
+          }}
           keyOf={(s: number) => String(s)}
           disabled={phase.kind === "result"}
           classNameOf={(semitones: number): string => {

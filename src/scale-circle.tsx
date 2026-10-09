@@ -1,5 +1,6 @@
 import type { JSX } from "react";
 import { type Note, type Scale, chordForNote, chordName, semitonesBetween } from "./music.ts";
+import { noteColor, rootRing } from "./note-colors.tsx";
 
 function isThirdOrFifth(scale: Scale, activeNote: Note | undefined, note: Note): boolean {
   if (activeNote === undefined) return false;
@@ -33,11 +34,11 @@ function describeArc(
 function strokeColorForSemitones(semitones: number): string {
   switch (semitones) {
     case 1:
-      return "stroke-neutral-300";
+      return "stroke-base-content/35";
     case 2:
-      return "stroke-neutral-600";
+      return "stroke-base-content";
     case 3:
-      return "stroke-red-500";
+      return "stroke-error";
     default:
       return "stroke-base-content";
   }
@@ -109,7 +110,9 @@ export function ScaleCircle({
       </svg>
 
       {activeNote !== undefined && (
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-yellow-400 text-white p-4 rounded-full">
+        <div
+          className={`absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 ${noteColor(activeNote)} font-semibold p-4 rounded-full`}
+        >
           {chordName(chordForNote(scale, activeNote))}
         </div>
       )}
@@ -126,11 +129,8 @@ export function ScaleCircle({
           note === secondaryNote ||
           (secondaryNote === undefined && isThirdOrFifth(scale, activeNote, note));
 
-        const buttonStyle: string = isActive
-          ? "bg-yellow-400 text-white"
-          : isSecondary
-            ? "bg-orange-500 text-white"
-            : "bg-zinc-950 text-white hover:bg-zinc-700";
+        const isFaded: boolean = activeNote !== undefined && !isActive && !isSecondary;
+        const buttonStyle: string = `${noteColor(note)} ${isActive ? rootRing : ""} ${isFaded ? "opacity-35" : ""}`;
 
         return (
           <button

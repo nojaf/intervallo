@@ -1,17 +1,70 @@
 @import "tailwindcss";
-@plugin "daisyui";
+@plugin "daisyui" {
+  themes: false;
+}
+
+/* Warm paper and ink, kept quiet so the note colors carry the meaning. One light theme
+   only, so an OS dark-mode preference does not swap in light text. */
+@plugin "daisyui/theme" {
+  name: "intervallo";
+  default: true;
+  prefersdark: false;
+  color-scheme: light;
+
+  /* Paper: page, cards, hover */
+  --color-base-100: oklch(97.5% 0.008 85);
+  --color-base-200: oklch(94.5% 0.012 85);
+  --color-base-300: oklch(90% 0.016 85);
+  --color-base-content: oklch(24% 0.02 60);
+
+  --color-primary: oklch(45% 0.1 60);
+  --color-primary-content: oklch(97.5% 0.008 85);
+  --color-secondary: oklch(55% 0.03 60);
+  --color-secondary-content: oklch(97.5% 0.008 85);
+  --color-accent: oklch(42% 0.085 60);
+  --color-accent-content: oklch(97.5% 0.008 85);
+  /* Ink: text on notes, selected buttons */
+  --color-neutral: oklch(22% 0.02 60);
+  --color-neutral-content: oklch(97.5% 0.008 85);
+
+  --color-info: oklch(50% 0.12 245);
+  --color-info-content: oklch(97% 0.03 95);
+  --color-success: oklch(48% 0.13 150);
+  --color-success-content: oklch(97% 0.03 95);
+  --color-warning: oklch(68% 0.18 55);
+  --color-warning-content: oklch(24% 0.035 55);
+  --color-error: oklch(52% 0.21 25);
+  --color-error-content: oklch(97% 0.03 95);
+
+  --radius-selector: 0.5rem;
+  --radius-field: 0.375rem;
+  --radius-box: 0.5rem;
+  --size-selector: 0.25rem;
+  --size-field: 0.25rem;
+  --border: 1px;
+  --depth: 1;
+  --noise: 0;
+}
 
 @theme {
-  --color-rescript-50: oklch(97% 0.02 27);
-  --color-rescript-100: oklch(93% 0.04 27);
-  --color-rescript-200: oklch(87% 0.07 27);
-  --color-rescript-300: oklch(79% 0.12 27);
-  --color-rescript-400: oklch(71% 0.16 27);
-  --color-rescript-500: oklch(63% 0.19 27);
-  --color-rescript-600: oklch(55% 0.17 27);
-  --color-rescript-700: oklch(47% 0.15 27);
-  --color-rescript-800: oklch(39% 0.12 27);
-  --color-rescript-900: oklch(31% 0.09 27);
-  --color-rescript-950: oklch(23% 0.06 27);
+  /* Fretboard */
+  --color-wood: oklch(42% 0.085 60);
+  --color-fret: oklch(82% 0.03 85);
+  --color-inlay: oklch(96% 0.04 95);
+
+  /* One color per note, 30° of hue per semitone, all at the same lightness so dark
+     text reads on every one. Used through note-colors.ts. */
+  --color-note-c: oklch(76% 0.12 25);
+  --color-note-cs: oklch(76% 0.12 55);
+  --color-note-d: oklch(76% 0.12 85);
+  --color-note-ds: oklch(76% 0.12 115);
+  --color-note-e: oklch(76% 0.12 145);
+  --color-note-f: oklch(76% 0.12 175);
+  --color-note-fs: oklch(76% 0.12 205);
+  --color-note-g: oklch(76% 0.12 235);
+  --color-note-gs: oklch(76% 0.12 265);
+  --color-note-a: oklch(76% 0.12 295);
+  --color-note-as: oklch(76% 0.12 325);
+  --color-note-b: oklch(76% 0.12 355);
   --font-inter: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
 }

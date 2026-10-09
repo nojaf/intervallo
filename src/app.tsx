@@ -1,7 +1,7 @@
 import { type JSX, useEffect, useState } from "react";
 import { ButtonToggle } from "./button-toggle.tsx";
 import { ChordsInScale } from "./chords-in-scale.tsx";
-import { Fretboard } from "./fretboard.tsx";
+import { Fretboard, noteHighlighter } from "./fretboard.tsx";
 import { IntervalQuiz } from "./interval-quiz.tsx";
 import {
   type Chord,
@@ -35,10 +35,7 @@ function ChordDetail({ scale, activeNote }: ChordDetailProps): JSX.Element {
       <Fretboard
         openStrings={["E", "B", "G", "D", "A", "E"]}
         className="my-6 mx-auto"
-        primary={activeNote}
-        secondary={new Set([chord.third])}
-        tertiary={new Set([chord.fifth])}
-        grayedOut={grayedOut}
+        highlighter={noteHighlighter(activeNote, grayedOut)}
       />
     </>
   );
@@ -55,6 +52,7 @@ export function App({ root, scale, note }: AppProps): JSX.Element {
   const [scalePattern, setScalePattern] = useState<readonly Step[]>(scale);
   const currentScale: Scale = makeScale(scalePattern, rootNote);
   const unusedNotes: Set<Note> = chromaticRing.subtract(currentScale.notes);
+  const scaleKey: string = `${currentScale.rootNote}-${urlEncodeScalePattern(scalePattern)}`;
   const [activeNote, setActiveNote] = useState<Note | undefined>(note);
 
   useEffect(() => {
@@ -100,8 +98,7 @@ export function App({ root, scale, note }: AppProps): JSX.Element {
       <Fretboard
         openStrings={["E", "B", "G", "D", "A", "E"]}
         className="my-6 mx-auto"
-        primary={currentScale.rootNote}
-        grayedOut={unusedNotes}
+        highlighter={noteHighlighter(currentScale.rootNote, unusedNotes)}
       />
       <div className="flex flex-col items-center justify-center gap-4">
         <div className="flex gap-6 items-center">
@@ -120,14 +117,8 @@ export function App({ root, scale, note }: AppProps): JSX.Element {
         )}
       </div>
       {activeNote !== undefined && <ChordDetail scale={currentScale} activeNote={activeNote} />}
-      <PositionFinder
-        key={`${currentScale.rootNote}-${urlEncodeScalePattern(scalePattern)}`}
-        scale={currentScale}
-      />
-      <IntervalQuiz
-        key={`${currentScale.rootNote}-${urlEncodeScalePattern(scalePattern)}`}
-        scale={currentScale}
-      />
+      <PositionFinder key={`position-finder-${scaleKey}`} scale={currentScale} />
+      <IntervalQuiz key={`interval-quiz-${scaleKey}`} scale={currentScale} />
     </div>
   );
 }

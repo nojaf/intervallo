@@ -1,4 +1,5 @@
 import { useMemo, useState, type ChangeEvent, type JSX, type ReactNode } from "react";
+import { type Highlighter, type NoteHighlight, Fretboard } from "./fretboard.tsx";
 import {
   type Chord,
   type Note,
@@ -8,6 +9,7 @@ import {
   chordShortName,
   chromaticRing,
 } from "./music.ts";
+import { NoteDot } from "./note-colors.tsx";
 import {
   type ChordVoicing,
   type PositionSolution,
@@ -48,12 +50,6 @@ function MultiButtonToggle<T>({
   );
 }
 
-function noteRoleColor(role: "root" | "third" | "fifth"): string {
-  if (role === "root") return "bg-yellow-400 text-black";
-  if (role === "third") return "bg-orange-500 text-white";
-  return "bg-zinc-600 text-white";
-}
-
 function getNoteRole(note: Note, chord: Chord): "root" | "third" | "fifth" {
   if (note === chord.root) return "root";
   if (note === chord.third) return "third";
@@ -75,95 +71,40 @@ function VoicingDiagram({
   windowStart,
   windowEnd,
 }: VoicingDiagramProps): JSX.Element {
-  const sfByString: Map<number, StringFret> = new Map(
-    voicing.stringFrets.map((sf: StringFret) => [sf.stringIdx, sf]),
+  const fretByString: Map<number, number> = new Map(
+    voicing.stringFrets.map((sf: StringFret) => [sf.stringIdx, sf.fret]),
   );
-  const voicingStringSet: Set<number> = new Set(
-    voicing.stringFrets.map((sf: StringFret) => sf.stringIdx),
-  );
-  const hasOpenStrings: boolean = voicing.stringFrets.some((sf: StringFret) => sf.fret === 0);
-  const windowFrets: number[] = Array.from(
-    { length: windowEnd - windowStart + 1 },
-    (_: undefined, i: number) => windowStart + i,
-  );
-  const showOpenCol: boolean = hasOpenStrings && windowStart > 0;
+  const highlighter: Highlighter = (note: Note, stringIdx: number, fret: number): NoteHighlight => {
+    const playedFret: number | undefined = fretByString.get(stringIdx);
+    if (playedFret === fret) return note === chord.root ? "root" : "regular";
+    // The open-string column: × for a string that is not played, else the string's name.
+    if (fret === 0) return playedFret === undefined ? "muted" : "label";
+    return "hidden";
+  };
 
   return (
-    <div className="overflow-auto border border-zinc-200 rounded p-3 bg-zinc-50">
-      {/* Header row */}
-      <div className="flex items-center text-xs text-zinc-400 mb-1">
-        <div className="w-6 shrink-0" />
-        {showOpenCol && (
-          <>
-            <div className="w-10 shrink-0 text-center">open</div>
-            <div className="w-4 shrink-0 text-center text-zinc-700">···</div>
-          </>
-        )}
-        {windowFrets.map((f: number) => (
-          <div key={f} className="w-10 shrink-0 text-center">
-            {f === 0 ? "open" : f}
-          </div>
-        ))}
-      </div>
-
-      {/* String rows */}
-      {openStrings.map((openNote: Note, stringIdx: number) => {
-        const sf: StringFret | undefined = sfByString.get(stringIdx);
-        const inVoicing: boolean = voicingStringSet.has(stringIdx);
-
-        return (
-          <div key={stringIdx} className="flex items-center my-0.5">
-            <div className="w-6 shrink-0 text-right text-xs text-zinc-400 pr-1">{openNote}</div>
-
-            {showOpenCol && (
-              <>
-                <div className="w-10 shrink-0 h-8 flex items-center justify-center">
-                  {sf?.fret === 0 ? (
-                    <div
-                      className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${noteRoleColor(getNoteRole(sf.note, chord))}`}
-                    >
-                      {sf.note}
-                    </div>
-                  ) : null}
-                </div>
-                <div className="w-4 shrink-0" />
-              </>
-            )}
-
-            {windowFrets.map((fret: number) => {
-              const isPlayed: boolean = sf?.fret === fret;
-              return (
-                <div
-                  key={fret}
-                  className={`w-10 shrink-0 h-8 flex items-center justify-center ${inVoicing ? "border-b-2 border-zinc-300" : ""}`}
-                >
-                  {isPlayed ? (
-                    <div
-                      className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${noteRoleColor(getNoteRole(sf!.note, chord))}`}
-                    >
-                      {sf!.note}
-                    </div>
-                  ) : null}
-                </div>
-              );
-            })}
-          </div>
-        );
-      })}
+    <div>
+      <Fretboard
+        openStrings={openStrings}
+        highlighter={highlighter}
+        fromFret={Math.max(1, windowStart)}
+        toFret={windowEnd}
+        showFretNumbers
+      />
 
       {/* Legend */}
-      <div className="flex gap-4 mt-2 text-xs text-zinc-500">
+      <div className="flex gap-4 mt-3 text-xs text-base-content/70">
         <span className="flex items-center gap-1">
-          <span className="inline-block w-3 h-3 rounded-full bg-yellow-400" />
-          root
+          <NoteDot note={chord.root} />
+          {chord.root} root
         </span>
         <span className="flex items-center gap-1">
-          <span className="inline-block w-3 h-3 rounded-full bg-orange-500" />
-          third
+          <NoteDot note={chord.third} />
+          {chord.third} third
         </span>
         <span className="flex items-center gap-1">
-          <span className="inline-block w-3 h-3 rounded-full bg-zinc-600" />
-          fifth
+          <NoteDot note={chord.fifth} />
+          {chord.fifth} fifth
         </span>
       </div>
     </div>
@@ -197,7 +138,7 @@ function ChordBars({
         <div className="w-28 shrink-0" />
         <div className="flex-1 flex">
           {Array.from({ length: windowSize }, (_: undefined, i: number) => (
-            <div key={i} className="flex-1 text-center text-xs text-zinc-600">
+            <div key={i} className="flex-1 text-center text-xs text-base-content/70">
               {windowStart + i === 0 ? "nut" : windowStart + i}
             </div>
           ))}
@@ -225,18 +166,18 @@ function ChordBars({
         return (
           <div
             key={`${chord.root}-${chord.quality}`}
-            className={`flex items-center my-1 cursor-pointer rounded-md px-1 py-2 transition-colors ${isActive ? "bg-zinc-200" : "hover:bg-zinc-100"}`}
+            className={`flex items-center my-1 cursor-pointer rounded-md px-1 py-2 transition-colors ${isActive ? "bg-base-300" : "hover:bg-base-200"}`}
             onMouseEnter={() => onHoverChordVoicing(cv)}
             onMouseLeave={() => onHoverChordVoicing(null)}
           >
             <div className="w-28 shrink-0 flex items-center justify-end gap-1.5 pr-3">
               {hasOpen && (
                 <div
-                  className={`w-2.5 h-2.5 shrink-0 rounded-full border-2 transition-colors ${isActive ? "border-zinc-700" : "border-zinc-400"}`}
+                  className={`w-2.5 h-2.5 shrink-0 rounded-full border-2 transition-colors ${isActive ? "border-base-content" : "border-base-content/40"}`}
                 />
               )}
               <span
-                className={`text-sm font-semibold transition-colors ${isActive ? "text-zinc-900" : "text-zinc-500"}`}
+                className={`text-sm font-semibold transition-colors ${isActive ? "text-base-content" : "text-base-content/60"}`}
               >
                 {chordShortName(chord)}
               </span>
@@ -245,13 +186,13 @@ function ChordBars({
             <div className="flex-1 relative h-5">
               {/* Background track */}
               <div
-                className={`absolute top-1/2 left-0 right-0 h-px -translate-y-1/2 transition-colors ${isActive ? "bg-zinc-400" : "bg-zinc-300"}`}
+                className={`absolute top-1/2 left-0 right-0 h-px -translate-y-1/2 transition-colors ${isActive ? "bg-base-content/40" : "bg-base-content/25"}`}
               />
 
               {/* Span line between outermost dots */}
               {minFret !== undefined && maxFret !== undefined && minFret !== maxFret && (
                 <div
-                  className={`absolute top-1/2 h-0.5 -translate-y-1/2 transition-colors ${isActive ? "bg-zinc-700" : "bg-zinc-400"}`}
+                  className={`absolute top-1/2 h-0.5 -translate-y-1/2 transition-colors ${isActive ? "bg-base-content" : "bg-base-content/40"}`}
                   style={{
                     left: `${fretCenterPct(minFret)}%`,
                     width: `${fretCenterPct(maxFret) - fretCenterPct(minFret)}%`,
@@ -263,7 +204,7 @@ function ChordBars({
               {uniqueFrets.map((fret: number) => (
                 <div
                   key={fret}
-                  className={`absolute top-1/2 -translate-y-1/2 -translate-x-1/2 rounded-full transition-all ${isActive ? "w-5 h-5 bg-zinc-900" : "w-4 h-4 bg-zinc-400"}`}
+                  className={`absolute top-1/2 -translate-y-1/2 -translate-x-1/2 rounded-full transition-all ${isActive ? "w-5 h-5 bg-neutral" : "w-4 h-4 bg-base-content/40"}`}
                   style={{ left: `${fretCenterPct(fret)}%` }}
                 />
               ))}
@@ -326,9 +267,9 @@ function PositionSolutionCard({ solution, openStrings }: PositionSolutionCardPro
       : `Frets ${solution.windowStart}–${solution.windowEnd}`;
 
   return (
-    <div className="border border-zinc-200 rounded-lg p-4 mb-4 bg-white">
+    <div className="border border-base-300 rounded-lg p-4 mb-4 bg-base-200">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="font-semibold text-lg text-zinc-900">{label}</h3>
+        <h3 className="font-semibold text-lg text-base-content">{label}</h3>
         <div className="flex gap-2">
           <button onClick={handleCopy} className="btn btn-sm btn-outline">
             {copied ? "Copied!" : "Copy"}
@@ -351,7 +292,7 @@ function PositionSolutionCard({ solution, openStrings }: PositionSolutionCardPro
             />
           </div>
           <div className="w-1/2 flex flex-col gap-2">
-            <p className="text-sm font-semibold text-zinc-900 h-5">
+            <p className="text-sm font-semibold text-base-content h-5">
               {chordName(hoveredCV?.chord ?? solution.chordVoicings[0]!.chord)}
             </p>
             <VoicingDiagram
@@ -453,7 +394,7 @@ export function PositionFinder({ scale }: PositionFinderProps): JSX.Element {
   return (
     <div className="mt-10">
       <h2 className="text-3xl font-bold mb-2">Position Finder</h2>
-      <p className="text-zinc-700 mb-2">
+      <p className="text-base-content/80 mb-2">
         Select the chords used in your song to find positions on the neck where they all fit.
       </p>
 
@@ -467,7 +408,7 @@ export function PositionFinder({ scale }: PositionFinderProps): JSX.Element {
 
       {dorianChords.length > 0 && (
         <div className="flex items-center gap-3 justify-center pb-4 -mt-2">
-          <span className="text-xs text-zinc-500 uppercase tracking-wide font-medium shrink-0">
+          <span className="text-xs text-base-content/70 uppercase tracking-wide font-medium shrink-0">
             Dorian
           </span>
           {dorianChords.map(({ chord, degree }: { chord: Chord; degree: string }) => (
@@ -480,13 +421,13 @@ export function PositionFinder({ scale }: PositionFinderProps): JSX.Element {
               <span className="ml-1 text-xs opacity-60">{degree}</span>
             </button>
           ))}
-          <span className="text-xs text-zinc-500 shrink-0">raised 6th — modal mixture</span>
+          <span className="text-xs text-base-content/70 shrink-0">raised 6th — modal mixture</span>
         </div>
       )}
 
       <div className="flex items-center gap-4 mb-8">
-        <label className="text-sm text-zinc-700 shrink-0">
-          Window size: <span className="text-zinc-900 font-medium">{windowSize} frets</span>
+        <label className="text-sm text-base-content/80 shrink-0">
+          Window size: <span className="text-base-content font-medium">{windowSize} frets</span>
         </label>
         <input
           type="range"
@@ -499,14 +440,16 @@ export function PositionFinder({ scale }: PositionFinderProps): JSX.Element {
       </div>
 
       {selectedChords.length === 0 ? (
-        <p className="text-zinc-700 italic">Select at least one chord above to find positions.</p>
+        <p className="text-base-content/80 italic">
+          Select at least one chord above to find positions.
+        </p>
       ) : solutions.length === 0 ? (
-        <p className="text-zinc-700 italic">
+        <p className="text-base-content/80 italic">
           No positions found for a {windowSize}-fret window. Try increasing the window size.
         </p>
       ) : (
         <div>
-          <p className="text-zinc-700 text-sm mb-4">
+          <p className="text-base-content/80 text-sm mb-4">
             {solutions.length} position{solutions.length !== 1 ? "s" : ""} found — hover a chord bar
             to see its voicing.
           </p>
