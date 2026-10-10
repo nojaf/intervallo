@@ -7,11 +7,10 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "check": "tsc",
     "lint": "oxlint",
     "lint:fix": "oxlint --fix",
     "fmt": "oxfmt",
-    "ci": "tsc && oxlint && oxfmt"
+    "ci": "bun check && oxlint && oxfmt"
   },
   "dependencies": {
     "react": "^19.3.0",
@@ -30,7 +29,6 @@
     "oxlint": "^1.87.0",
     "oxlint-tsgolint": "^7.0.2003",
     "tailwindcss": "^4.3.3",
-    "typescript": "^7.0.0",
     "vite": "^8.3.4"
   }
 }
